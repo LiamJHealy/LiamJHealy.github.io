@@ -1,0 +1,97 @@
+title:            Liam Healy
+description:      Quantitative Analytics Articles
+
+# put your disqus here
+disqus_shortname:
+reading_time:     true # if true, shows the estimated reading time for a post
+words_per_minute: 200
+logo:             images/logo.png # logo visible in the topbar
+excerpt_separator: <!--more-->
+# Your site's domain goes here (eg: //mmistakes.github.io, http://mademistakes.com, etc)
+# When testing locally leave blank or use http://localhost:4000
+
+url: http://localhost:4000
+
+# draw your top menu here
+# each item must have a title and a url.
+#   To list post categories. use type: 'categories'
+#   To create sub categories. add a submenu item
+# See the example
+menu:
+  - title: 'Articles'
+    url: '/'
+  - title: 'Tags'
+    url: '/tags'
+  - title: 'Categories'
+    url: '/categories'
+    type: 'categories'
+  - title: 'Favorites'
+    url: '#'
+    submenu:
+      - title: 'Code Highlighter'
+        url: '/intro/code-highlighting-post/'
+      - title: 'Sample Post'
+        url: '/intro/sample-post/'
+
+# Owner/author information
+owner:
+  name:           Liam Healy
+  site:           https://www.linkedin.com/in/ljhealy1992/
+  avatar:         images/avatar.jpg
+  bio:            "Experienced Quantitative Model Developer within Retail and Treasury. Passionate about problem solving, mathematical modelling and optimisation. "
+  email:          liamhealy1992@gmail.com
+  
+  # Twitter nick for use in Twitter cards and follow button.
+  twitter: false # if no twitter in this config, the twitter follow button will be removed
+  # GitHub nick for use in follow button in author block.
+  github: liamhealy1992
+
+# Twitter account associated with the site if different from owner/author twitter account.
+# Used in Twitter cards.
+twitter: false
+
+# Social networking links used in author block underneath posts. Update and remove as you like.
+social:
+  - title: "github"
+    url: "https://github.com/liamhealy1992"
+  - title: "linkedin"
+    url: "https://www.linkedin.com/in/ljhealy1992/"
+
+# Background image to be tiled on all pages
+background:
+
+# Analytics and webmaster tools stuff goes here
+google_analytics:
+google_verify:
+# https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
+bing_verify:
+
+# http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone:    Europe/London
+locale:      en_UK
+future:      true
+highlighter: rouge
+markdown:    kramdown
+sass:
+  sass_dir: _sass
+  style: compressed
+
+
+permalink:   /:categories/:title/
+paginate: 5
+float_share: false
+
+# Octopress
+# Default extensions
+post_ext: md
+page_ext: md
+# Found in _templates/
+post_layout: post
+page_layout: page
+# Format titles with titlecase?
+titlecase: true
+
+include: [".htaccess"]
+exclude: ["demo/*", "lib", "config.rb", "Capfile", "config", "Gemfile", "Gemfile.lock", "README.md", "LICENSE", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules"]
+gems: [jekyll-paginate]
+theme: neo-hpstr-jekyll-theme
