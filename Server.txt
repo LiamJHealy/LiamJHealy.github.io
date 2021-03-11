@@ -1,0 +1,7 @@
+# Run server
+bundle exec jekyll serve --watch
+
+# Push to github
+git remote add origin https://github.com/liamhealy1992/test.git
+git branch -M main
+git push -u origin main
