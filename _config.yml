@@ -10,7 +10,7 @@ excerpt_separator: <!--more-->
 # Your site's domain goes here (eg: //mmistakes.github.io, http://mademistakes.com, etc)
 # When testing locally leave blank or use http://localhost:4000
 
-url: http://localhost:4000
+url: //liamhealy1992.github.io/
 
 # draw your top menu here
 # each item must have a title and a url.
@@ -24,19 +24,11 @@ menu:
     url: '/tags'
   - title: 'Categories'
     url: '/categories'
-    type: 'categories'
-  - title: 'Favorites'
-    url: '#'
-    submenu:
-      - title: 'Code Highlighter'
-        url: '/intro/code-highlighting-post/'
-      - title: 'Sample Post'
-        url: '/intro/sample-post/'
 
 # Owner/author information
 owner:
   name:           Liam Healy
-  site:           https://www.linkedin.com/in/ljhealy1992/
+  site:           //liamhealy1992.github.io/
   avatar:         images/avatar.jpg
   bio:            "Experienced Quantitative Model Developer within Retail and Treasury. Passionate about problem solving, mathematical modelling and optimisation. "
   email:          liamhealy1992@gmail.com
