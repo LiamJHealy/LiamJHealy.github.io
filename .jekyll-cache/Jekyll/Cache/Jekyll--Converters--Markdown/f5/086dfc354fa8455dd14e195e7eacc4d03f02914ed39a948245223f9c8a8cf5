@@ -1,0 +1,79 @@
+I"L!<h3 id="alias-is-preferred-to-typedef"><center>Alias is preferred to typedef</center></h3>
+
+<p>It is clearer:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">typedef</span> <span style="color: #586e75">void</span> <span style="color: #93a1a1">(</span><span style="color: #93a1a1">*</span><span style="color: #586e75">FP</span><span style="color: #93a1a1">)(</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">,</span> <span style="color: #6c71c4">const</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">string</span><span style="color: #93a1a1">&amp;</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// old way: typedef</span>
+<span style="color: #6c71c4">using</span> <span style="color: #586e75">FP</span> <span style="color: #93a1a1">=</span> <span style="color: #cb4b16">void</span> <span style="color: #93a1a1">(</span><span style="color: #93a1a1">*</span><span style="color: #93a1a1">)(</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">,</span> <span style="color: #6c71c4">const</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">string</span><span style="color: #93a1a1">&amp;</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// new way: alias</span>
+</code></pre></div></div>
+
+<p>It support template:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #6c71c4">using</span> <span style="color: #586e75">MyAllocList</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">list</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">T</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">MyAlloc</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">T</span><span style="color: #93a1a1">&gt;&gt;</span><span style="color: #93a1a1">;</span>
+</code></pre></div></div>
+
+<h3 id="enum-is-preferred-to-be-scoped"><center>enum is preferred to be scoped</center></h3>
+
+<p>Comparison between the old and new way:</p>
+
+<!-- more -->
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">enum</span> <span style="color: #586e75">Color</span> <span style="color: #93a1a1">{</span> <span style="color: #586e75">black</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">white</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">red</span> <span style="color: #93a1a1">};</span>
+<span style="color: #6c71c4">enum</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">Color</span> <span style="color: #93a1a1">{</span> <span style="color: #586e75">black</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">white</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">red</span> <span style="color: #93a1a1">};</span>
+</code></pre></div></div>
+
+<p>Using the old way, the enums are all globally active,then:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">white</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">false</span>
+</code></pre></div></div>
+
+<p>will be wrong, because the word <strong><em>white</em></strong> is already defined. When using the new method, <strong><em>Color::white</em></strong> will be used instead, so <strong><em>white</em></strong> is now free to use.</p>
+
+<p>We can also call it “enum class”.</p>
+
+<p><strong>Attention: scoped enum can not be converted to int implicitly!</strong> <em>Color::white</em> is not equal to 1, it is just <em>Color::white</em>. But you can define a enum’s underlying type:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">enum</span> <span style="color: #586e75">Color</span><span style="color: #93a1a1">:</span> <span style="color: #cb4b16">short</span> <span style="color: #93a1a1">{</span><span style="color: #586e75">black</span><span style="color: #93a1a1">=</span><span style="color: #859900">0</span><span style="color: #93a1a1">,</span><span style="color: #586e75">white</span><span style="color: #93a1a1">=</span><span style="color: #859900">1</span><span style="color: #93a1a1">,</span><span style="color: #586e75">red</span><span style="color: #93a1a1">=</span><span style="color: #859900">2</span><span style="color: #93a1a1">};</span>
+</code></pre></div></div>
+
+<p><strong>Forward declaration is supported:</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">enum</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">Color</span><span style="color: #93a1a1">;</span>
+</code></pre></div></div>
+
+<h3 id="override-should-be-added-when-overriding"><center>override should be added when overriding</center></h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">class</span>  <span style="color: #b58900">Base</span>
+<span style="color: #93a1a1">{</span>
+<span style="color: #586e75">public:</span>
+	<span style="color: #586e75">Base</span><span style="color: #93a1a1">()</span> <span style="color: #93a1a1">{};</span>
+	 <span style="color: #93a1a1">~</span><span style="color: #586e75">Base</span><span style="color: #93a1a1">()</span> <span style="color: #93a1a1">{};</span>
+	 <span style="color: #6c71c4">virtual</span> <span style="color: #cb4b16">void</span> <span style="color: #586e75">func</span><span style="color: #93a1a1">()</span> 
+     <span style="color: #93a1a1">{</span> 
+       	<span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">"I am base class</span><span style="color: #d33682">\n</span><span style="color: #859900">"</span><span style="color: #93a1a1">;</span> 
+     <span style="color: #93a1a1">};</span>
+<span style="color: #93a1a1">};</span>
+
+<span style="color: #6c71c4">class</span> <span style="color: #b58900">Derived</span> <span style="color: #93a1a1">:</span> <span style="color: #6c71c4">public</span> <span style="color: #586e75">Base</span>
+<span style="color: #93a1a1">{</span>
+<span style="color: #586e75">public:</span>
+	<span style="color: #586e75">Derived</span><span style="color: #93a1a1">()</span> <span style="color: #93a1a1">{};</span>
+	<span style="color: #93a1a1">~</span><span style="color: #586e75">Derived</span><span style="color: #93a1a1">()</span> <span style="color: #93a1a1">{};</span>
+	<span style="color: #cb4b16">void</span> <span style="color: #586e75">func</span><span style="color: #93a1a1">()</span> <span style="color: #6c71c4">override</span> 
+    <span style="color: #93a1a1">{</span> 
+      	<span style="color: #586e75">Base</span><span style="color: #93a1a1">::</span><span style="color: #586e75">func</span><span style="color: #93a1a1">();</span> 
+      	<span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">"I am derived class</span><span style="color: #d33682">\n</span><span style="color: #859900">"</span><span style="color: #93a1a1">;</span> 
+    <span style="color: #93a1a1">};</span>
+<span style="color: #93a1a1">};</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">Derived</span> <span style="color: #586e75">derived</span><span style="color: #93a1a1">;</span>
+	<span style="color: #586e75">derived</span><span style="color: #93a1a1">.</span><span style="color: #586e75">func</span><span style="color: #93a1a1">();</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #657b83">/*The output will be:
+I am base class
+I am derived class
+*/</span>
+</code></pre></div></div>
+
+:ET

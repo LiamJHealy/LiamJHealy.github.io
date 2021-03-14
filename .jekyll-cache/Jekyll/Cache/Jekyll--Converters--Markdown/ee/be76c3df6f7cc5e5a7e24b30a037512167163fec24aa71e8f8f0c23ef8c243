@@ -1,0 +1,66 @@
+I"s<h3 id="function-binding"><strong>Function binding</strong></h3>
+
+<p>std::bind can <strong>create a function which is binded to another one</strong>:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #cb4b16">void</span> <span style="color: #586e75">originalFunc</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">string</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">string</span> <span style="color: #586e75">b</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">string</span> <span style="color: #586e75">c</span><span style="color: #93a1a1">)</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">a</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">" "</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">b</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">" "</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">c</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">endl</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span><span style="color: #657b83">//original function, to be binded</span>
+
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+  	<span style="color: #657b83">//Newly binded function, created by bind function</span>
+  	<span style="color: #6c71c4">auto</span> <span style="color: #586e75">newlyBindedFunc</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">bind</span><span style="color: #93a1a1">(</span><span style="color: #586e75">originalFunc</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">placeholders</span><span style="color: #93a1a1">::</span><span style="color: #586e75">_3</span><span style="color: #93a1a1">,</span> <span style="color: #859900">"Fixed"</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">placeholders</span><span style="color: #93a1a1">::</span><span style="color: #586e75">_1</span><span style="color: #93a1a1">);</span>
+    <span style="color: #657b83">//Call the newly binded function</span>
+    <span style="color: #586e75">newlyBindedFunc</span><span style="color: #93a1a1">(</span><span style="color: #859900">"New 1st"</span><span style="color: #93a1a1">,</span>    <span style="color: #859900">"New 2nd"</span><span style="color: #93a1a1">,</span>   <span style="color: #859900">"New 3rd"</span><span style="color: #93a1a1">);</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<!-- more -->
+
+<p>We can see that calling</p>
+
+<p><strong><em>newlyBindedFunc(“New 1st”,    “New 2nd”,   “New 3rd”);</em></strong></p>
+
+<p>is exactly the same as calling</p>
+
+<p><strong><em>originalFunc(“New 3rd”, “Fixed”, “New 1st”);</em></strong></p>
+
+<p>So the bind function is just <strong>remapping the input arguments</strong>:</p>
+
+<p><img src="\images\cpp\function_bind.png" alt="function_bind" /></p>
+
+<p>Just as the above diagram shows, using the bind in this case,</p>
+
+<p>the 3rd(std::placeholders::_3)  argument of newlyBindedFunc is mapped to the 1st input argument of originalFunc: <strong>string a</strong>.</p>
+
+<p>the 1st(std::placeholders::1) argument of newlyBindedFunc is mapped to the 3rd input argument of originalFunc: <strong>string c</strong>.</p>
+
+<p>the 2nd argument of originalFunc is already <strong>defined</strong> by std::bind as “fixed”.</p>
+
+<h3 id="move-things-into-closure"><strong>Move things into Closure</strong></h3>
+
+<p>Sometimes copy a object into a closure is very expensive(STL containers), <strong>we prefer moving them instead of copying them</strong>, but C++ 11 doesn’t support it.</p>
+
+<p>Fortunately, we can use bind as a workaround:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span style="color: #586e75">vector</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">originalData</span><span style="color: #93a1a1">{</span> <span style="color: #859900">1</span><span style="color: #93a1a1">,</span><span style="color: #859900">2</span><span style="color: #93a1a1">,</span><span style="color: #859900">3</span><span style="color: #93a1a1">,</span><span style="color: #859900">4</span><span style="color: #93a1a1">,</span><span style="color: #859900">5</span><span style="color: #93a1a1">,</span><span style="color: #859900">6</span><span style="color: #93a1a1">,</span><span style="color: #859900">7</span> <span style="color: #93a1a1">};</span>
+
+	<span style="color: #6c71c4">auto</span> <span style="color: #586e75">func</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">bind</span><span style="color: #93a1a1">(</span>
+      <span style="color: #93a1a1">[](</span><span style="color: #586e75">vector</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">&gt;&amp;</span> <span style="color: #586e75">data</span><span style="color: #93a1a1">)</span>
+	  <span style="color: #93a1a1">{</span>
+		  <span style="color: #6c71c4">for</span> <span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">0</span><span style="color: #93a1a1">;</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">&lt;</span> <span style="color: #586e75">data</span><span style="color: #93a1a1">.</span><span style="color: #586e75">size</span><span style="color: #93a1a1">();</span> <span style="color: #586e75">i</span><span style="color: #93a1a1">++</span><span style="color: #93a1a1">)</span>
+		  <span style="color: #93a1a1">{</span>
+			 <span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">data</span><span style="color: #93a1a1">[</span><span style="color: #586e75">i</span><span style="color: #93a1a1">]</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">" "</span><span style="color: #93a1a1">;</span>
+		  <span style="color: #93a1a1">}</span>
+	  <span style="color: #93a1a1">},</span>
+	  <span style="color: #586e75">move</span><span style="color: #93a1a1">(</span><span style="color: #586e75">originalData</span><span style="color: #93a1a1">)</span>
+	<span style="color: #93a1a1">);</span>
+
+	<span style="color: #586e75">func</span><span style="color: #93a1a1">();</span>
+</code></pre></div></div>
+
+<p>The code is straightforward, we use std::bind to create a new function <strong><em>func</em></strong>, which is binded to a lambda. The lambda has one input and it’s defined by std::bind to be <strong><em>move(originalData)</em></strong>.</p>
+
+<p>So actually the input argument <strong><em>originalData</em></strong> is passed by bind function, when you are really calling <strong><em>func()</em></strong>, <strong>you don’t need to pass anything.</strong></p>
+:ET

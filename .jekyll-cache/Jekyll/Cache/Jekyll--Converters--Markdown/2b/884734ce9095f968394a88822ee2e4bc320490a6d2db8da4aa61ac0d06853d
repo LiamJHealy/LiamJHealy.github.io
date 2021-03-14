@@ -1,0 +1,18 @@
+I"�<p>HoG (<strong>Histograms of Oriented Gradients</strong>) feature is a kind of feature used for human figure detection. At an age without deep learning, it is the best feature to do this work.</p>
+
+<p>Just as its name described, HoG feature compute the gradients of all pixels of an image patch/block. <strong>It computes both the gradient’s magnitude and orientation</strong>, that’s why it’s called “oriented”, then it computes the histogram of the oriented gradients by separating them to 9 ranges.</p>
+
+<p><strong>One image block (upper left corner of the image) is combined of 4 cells</strong>, <strong>one cell owns a 9 bins histogram</strong>, so for one image block we get 4 histograms, and all these 4 histograms will be flattened to one feature vector with a length of 4x9. Compute the feature vectors for all blocks in the image, we get a feature vector map.</p>
+
+<p>Taking one pixel (marked red) from the yellow cell as an example:  compute the \(\bigtriangledown_x\) and \(\bigtriangledown_y\) of this pixel, then we get its magnitude and orientation(represented by angle). When calculating the histogram, we <strong>vote its magnitude to its neighboring 2 bins using bilinear interpolation of angles.</strong></p>
+
+<p>Finally, when we get the 4 histograms of the 4 cells, we <strong>normalize them according to the summation of all the 4x9 values.</strong></p>
+
+<p>The details are described in the following chart:
+<!-- more --></p>
+
+<p><img src="\images\computer_vision\hog\HoG_Descriptor.png" alt="HoG_Descriptor" /></p>
+
+<p>Original Paper:<a href="https://lear.inrialpes.fr/people/triggs/pubs/Dalal-cvpr05.pdf">Histograms of Oriented Gradients for Human Detection</a></p>
+
+:ET

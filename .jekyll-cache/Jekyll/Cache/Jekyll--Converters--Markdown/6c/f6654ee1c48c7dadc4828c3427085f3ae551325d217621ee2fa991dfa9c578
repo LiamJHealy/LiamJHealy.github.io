@@ -1,0 +1,153 @@
+I"]B<ul id="markdown-toc">
+  <li><a href="#modelling-the-gps-based-odometry" id="markdown-toc-modelling-the-gps-based-odometry">Modelling the GPS based odometry</a>    <ul>
+      <li><a href="#model-as-graph" id="markdown-toc-model-as-graph">Model as graph</a></li>
+      <li><a href="#model-as-equation" id="markdown-toc-model-as-equation">Model as equation</a></li>
+    </ul>
+  </li>
+  <li><a href="#solving-the-problem-with-g2o" id="markdown-toc-solving-the-problem-with-g2o">Solving the problem with g2o</a>    <ul>
+      <li><a href="#how-is-g2o-structured" id="markdown-toc-how-is-g2o-structured">How is g2o structured?</a></li>
+      <li><a href="#define-optimizer" id="markdown-toc-define-optimizer">Define Optimizer</a></li>
+      <li><a href="#define-optimization-algorithm" id="markdown-toc-define-optimization-algorithm">Define Optimization algorithm</a>        <ul>
+          <li><a href="#optimization-algorithm" id="markdown-toc-optimization-algorithm">Optimization Algorithm</a></li>
+          <li><a href="#solver-type" id="markdown-toc-solver-type">Solver Type</a></li>
+          <li><a href="#solver" id="markdown-toc-solver">Solver</a></li>
+          <li><a href="#unique-pointer-and-move" id="markdown-toc-unique-pointer-and-move">unique pointer and move</a></li>
+        </ul>
+      </li>
+      <li><a href="#run-the-optimizer" id="markdown-toc-run-the-optimizer">Run the optimizer</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>In graph optimization 1 to 3, the math is introduced. Now we can make some hands on practice on programming. The most famous used graph optimization library is g2o due to its good performance in ORB-SLAM. g2o also has its well known drawback - not well commented, not easy to understand. What’s more, most of the tutorials are based on the original sample examples, when you want to make your own vertex or edge, you will again be lost.</p>
+
+<p>This introduction will be based on an easy to understand graph optimization problem with a customized edge implementation.</p>
+
+<h1 id="modelling-the-gps-based-odometry">Modelling the GPS based odometry</h1>
+
+<h2 id="model-as-graph">Model as graph</h2>
+
+<p>The problem is quite easy: we have a vehicle moving around, we use a GPS to <strong>measure</strong> its 3D absolute positions, by making some rough guesses as <strong>initialization</strong>,  we want to <strong>estimate</strong> the vehicle’s position based on the GPS’ measurements.</p>
+
+<p>In a SLAM system, we usually want to fuse different sensors, what’s discussed most are fusing camera and IMU, which is also the problem setup for g2o examples. Fusing GPS information is rarely touched, actually GPS sensor fusion is easier to understand. It can be modeled as the following diagram:</p>
+
+<p><img src="/images/SLAM/g2o/g2o_gps_edge.png" alt="g2o_gps_edge" /></p>
+
+<!-- more -->
+
+<p>The light blue vertexes are camera poses to be estimated, it’s represented as 6 Dof pose just for the convenience of future work, considering only GPS measurements, only 3 Dof will be optimized.</p>
+
+<p>The dark blue vertexes are GPS measurements, they are fixed. The dark blue arrows are the <strong>edges representing the error between the measurement and estimation</strong>, which in our case is simply the difference between the measurement and the estimation.</p>
+
+<p>The dark blue vertexes are <strong>“pulling”</strong> the light blue vertexes toward them, just as what’s happening in the real world : we try to estimate something that fit the measurements best.</p>
+
+<h2 id="model-as-equation">Model as equation</h2>
+
+<p>The optimization problem can be expressed as the following equation:</p>
+
+\[X^*_{1..i}=\arg \max_{X_{1..i}}\sum_i(e_{i}^T\Omega_i e_i)\]
+
+<p>\(X_i\) is the estimation, which is being updated in the optimization loop; \(Z_i\) is the measurement for \(X_i\) , which is fixed; the error \(e_i\) is the error we get between estimation and measurement.</p>
+
+<p>\(\Omega\) is the so called “information” matrix, in our case, as the poses are not correlated to each other, it is a identical matrix, if we consider \(\Omega_i\) is its \(i\)th diagonal element, \(\Omega_i\) will always be one.</p>
+
+<p>Put the error in, we get the complete equation:</p>
+
+\[X^*_{1..i}=\arg \max_{X_{1..i}}\sum_i((X_i-Z_i)^T\Omega_i (X_i-Z_i))\]
+
+<p>For the graph optimization problem, we also need the Jacobian matrix, which contains:</p>
+
+\[\frac{d e_i}{d X_i}=\frac{d(X_i-Z_i)}{d X_i}=1\]
+
+<p>Obviously, our Jacobian matrix is also a diagonal matrix!</p>
+
+<p>Now, we get everything ready for the math.</p>
+
+<h1 id="solving-the-problem-with-g2o">Solving the problem with g2o</h1>
+
+<h2 id="how-is-g2o-structured">How is g2o structured?</h2>
+
+<h2 id="define-optimizer">Define Optimizer</h2>
+
+<p>The core of g2o is based on the <strong>Optimizer</strong>, which can be considered as the optimization engine managing everything. As the optimization problem in the field of SLAM is mostly sparse, we usually use the sparse optimizer. The sparse optimizer will take the sparsity of the Jacobian matrix into consideration and saves time and space. So the first step of our program will be declaring an optimizer:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">SparseOptimizer</span> <span style="color: #586e75">optimizer</span><span style="color: #93a1a1">;</span>
+</code></pre></div></div>
+
+<h2 id="define-optimization-algorithm">Define Optimization algorithm</h2>
+
+<p>From <a href="http://wangxinliu.com/slam/optimization/research&amp;study/g2o-3/">Graph Optimization 3</a> we get the update equation:</p>
+
+\[H(x_0)\Delta x^*=-b(x_0)\]
+
+<p>In order to compute \(\Delta x^*\) , we need to compute \(H(x_0)^{-1}\). If the parameter space is large, the \(H\) matrix will be also large and computing the inverse will be really heavy. Just as mentioned above, the \(H\) matrix is usually a sparse matrix, if we know its structure in beforehand, we can “densify” it and solve its inverse to save time and space, which is the so called “<a href="https://en.wikipedia.org/wiki/Schur_complement">Schur complement</a>”. When the \(H\) matrix is “densified”, we can also use different methods to solve its inverse.</p>
+
+<p>When the structure of the \(H\) matrix and the method of computing matrix inverse is defined, we can finally define the solver type. g2o is a perfectly designed object oriented library, it can define the solver type in one line combining all these information:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">linearSolverType</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">make_unique</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">LinearSolverCholmod</span> <span style="color: #93a1a1">&lt;</span><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">BlockSolverPL</span><span style="color: #93a1a1">&lt;</span><span style="color: #859900">6</span><span style="color: #93a1a1">,</span><span style="color: #859900">1</span><span style="color: #93a1a1">&gt;::</span><span style="color: #586e75">PoseMatrixType</span><span style="color: #93a1a1">&gt;&gt;</span><span style="color: #93a1a1">();</span>
+</code></pre></div></div>
+
+<p>When the solver type is defined, we can then create a solver:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">solver</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">make_unique</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">BlockSolverPL</span><span style="color: #93a1a1">&lt;</span><span style="color: #859900">6</span><span style="color: #93a1a1">,</span> <span style="color: #859900">1</span><span style="color: #93a1a1">&gt;&gt;</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">move</span><span style="color: #93a1a1">(</span><span style="color: #586e75">linearSolverType</span><span style="color: #93a1a1">));</span>
+</code></pre></div></div>
+
+<p>With the newly created solver, we can finally create the optimization algorithm:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">OptimizationAlgorithmLevenberg</span><span style="color: #93a1a1">*</span> <span style="color: #586e75">optimaAlgorithm</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">OptimizationAlgorithmLevenberg</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">move</span><span style="color: #93a1a1">(</span><span style="color: #586e75">solver</span><span style="color: #93a1a1">));</span>
+</code></pre></div></div>
+
+<p>The above 3 lines of code are obviously not friendly at all, I will explain them further in detail.</p>
+
+<h3 id="optimization-algorithm">Optimization Algorithm</h3>
+
+<p>Many algorithms can be used for optimization, such as Gauss-Newton, Gradient-Descent , Levenberg-Marquardt and so on. Here we use Levenberg-Marquardt algorithm to optimize the problem. In g2o it is implemented as a class “<strong>g2o::OptimizationAlgorithmLevenberg</strong>”.</p>
+
+<h3 id="solver-type">Solver Type</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">linearSolverType</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">make_unique</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">LinearSolverCholmod</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">BlockSolverPL</span><span style="color: #93a1a1">&lt;</span><span style="color: #859900">6</span><span style="color: #93a1a1">,</span><span style="color: #859900">1</span><span style="color: #93a1a1">::</span><span style="color: #586e75">PoseMatrixType</span><span style="color: #93a1a1">&gt;&gt;</span><span style="color: #93a1a1">();</span>
+</code></pre></div></div>
+
+<p>The solver type defines the method to solve the matrix inverse and the structure of the sparse matrix. Firstly we are solving a \(Ax=b\) problem, then the solver is called “LinearSolver”, as we use <strong>Cholmod</strong> as the back-end library to solve this linear problem, we define the solver type as <strong>LinearSolverCholmod</strong>. There is also a solver type class <strong>LinearSolverCsparse</strong> which us Csparse library as the back end solver.</p>
+
+<p>When solving a sparse matrix, we treat the matrix as blocks to do the Schur Complement. In order to treat it correctly, we need to specify how is the matrix structured. <strong>For our GPS odometry problem, we optimize the 6 Dof camera pose, therefore the block size of the matrix will be 6x1</strong>, the matrix type will be <strong>g2o::BlockSolverPL&lt;6,1&gt;::PoseMatrixType</strong>. Actually only 3 Dof can be optimized based on the GPS constraint, as we want to fuse other odometry information later, we define the camera pose to be 6 Dof.</p>
+
+<h3 id="solver">Solver</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">solver</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">make_unique</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">BlockSolverPL</span><span style="color: #93a1a1">&lt;</span><span style="color: #859900">6</span><span style="color: #93a1a1">,</span> <span style="color: #859900">1</span><span style="color: #93a1a1">&gt;&gt;</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">move</span><span style="color: #93a1a1">(</span><span style="color: #586e75">linearSolverType</span><span style="color: #93a1a1">));</span>
+</code></pre></div></div>
+
+<p>BlockSolverPL is a template of the BlockSolver which supports user-defined block size. Here we create a solver for computing the inverse of matrix \(H\).</p>
+
+<p>With the solver, we then create a optimization algorithm engine:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">OptimizationAlgorithmLevenberg</span><span style="color: #93a1a1">*</span> <span style="color: #586e75">optimaAlgorithm</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">g2o</span><span style="color: #93a1a1">::</span><span style="color: #586e75">OptimizationAlgorithmLevenberg</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">move</span><span style="color: #93a1a1">(</span><span style="color: #586e75">solver</span><span style="color: #93a1a1">));</span>
+</code></pre></div></div>
+
+<h3 id="unique-pointer-and-move">unique pointer and move</h3>
+
+<p>From the very beginning, we use <a href="https://en.cppreference.com/w/cpp/memory/unique_ptr"><strong>unique pointer</strong></a> and <strong><a href="https://en.cppreference.com/w/cpp/utility/move">move</a></strong> function to create new instances. The input solver of the optimization algorithm engine’s constructor is asked to be an unique pointer, which can guarantee that the pointer of solver will only be accessed by the optimization algorithm and make sure the solver is thread safe. We can see move function everywhere as the unique pointers can only moved, there is no way to get access to a unique pointer at the same time in two threads.</p>
+
+<h2 id="run-the-optimizer">Run the optimizer</h2>
+
+<p>When the optimization algorithm is fully defined and created, it can then be used to setup the optimizer:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">optimizer</span><span style="color: #93a1a1">.</span><span style="color: #586e75">setAlgorithm</span><span style="color: #93a1a1">(</span><span style="color: #586e75">optimaAlgorithm</span><span style="color: #93a1a1">);</span>
+</code></pre></div></div>
+
+<p>After this step, we can model the optimization problem by adding vertexes and edges into the optimizer, this part will be explained in the following article.</p>
+
+<p>Once we setup the graph model, we can call the following two functions to initialize and run the optimizer:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">optimizer</span><span style="color: #93a1a1">.</span><span style="color: #586e75">initializeOptimization</span><span style="color: #93a1a1">();</span>
+<span style="color: #586e75">optimizer</span><span style="color: #93a1a1">.</span><span style="color: #586e75">optimize</span><span style="color: #93a1a1">(</span><span style="color: #859900">100</span><span style="color: #93a1a1">);</span>
+</code></pre></div></div>
+
+<p>The optimizer will run at most 100 iterations according to the settings above. If we want to observe the optimization process, we can call</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">optimizer</span><span style="color: #93a1a1">.</span><span style="color: #586e75">setVerbose</span><span style="color: #93a1a1">(</span><span style="color: #586e75">false</span><span style="color: #93a1a1">);</span>
+</code></pre></div></div>
+
+<p>to print out the intermediate information.</p>
+
+:ET

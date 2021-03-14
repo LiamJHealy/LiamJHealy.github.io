@@ -1,0 +1,110 @@
+I"`%<ul id="markdown-toc">
+  <li><a href="#how-to-model-the-world" id="markdown-toc-how-to-model-the-world">How to model the world</a>    <ul>
+      <li><a href="#what-the-vertices-and-edges-really-mean-in-graph-based-slam" id="markdown-toc-what-the-vertices-and-edges-really-mean-in-graph-based-slam">What the vertices and edges really mean in graph-based SLAM?</a></li>
+      <li><a href="#what-is-edge-and-vertex-in-graph-optimization" id="markdown-toc-what-is-edge-and-vertex-in-graph-optimization">What is edge and vertex in Graph Optimization?</a>        <ul>
+          <li><a href="#vertex" id="markdown-toc-vertex">Vertex</a>            <ul>
+              <li><a href="#camera-pose-vertices" id="markdown-toc-camera-pose-vertices">Camera Pose Vertices</a></li>
+              <li><a href="#landmark-vertices" id="markdown-toc-landmark-vertices">Landmark Vertices</a></li>
+              <li><a href="#visualization-convention-should-the-vertices-aligned-along-a-line" id="markdown-toc-visualization-convention-should-the-vertices-aligned-along-a-line">Visualization convention: should the vertices aligned along a line?</a></li>
+            </ul>
+          </li>
+          <li><a href="#edges" id="markdown-toc-edges">Edges</a>            <ul>
+              <li><a href="#edges-between-camera-poses" id="markdown-toc-edges-between-camera-poses">Edges between Camera Poses</a></li>
+              <li><a href="#edges-between-landmarks-and-camera-poses" id="markdown-toc-edges-between-landmarks-and-camera-poses">Edges between landmarks and camera poses</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#measurements" id="markdown-toc-measurements">Measurements</a></li>
+      <li><a href="#estimations" id="markdown-toc-estimations">Estimations</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- more -->
+
+<h2 id="how-to-model-the-world">How to model the world</h2>
+
+<h3 id="what-the-vertices-and-edges-really-mean-in-graph-based-slam">What the vertices and edges really mean in graph-based SLAM?</h3>
+
+<p>The graph optimization’s essential  idea is modeling the SLAM problem as a graph. The tutorials usually say  that the camera’s poses are modeled as a vertex in a graph, the edge  connecting two vertices represents a constraint. Which somewhat simplifies the problem and makes the reader confusing.</p>
+
+<p>Because, <strong>not only the camera poses can be modeled as vertices, but also 3D landmarks.</strong> A constraint is a concept usually used in optimization, for someone who is not familiar with optimization, the edges just represent some  physical relationships.</p>
+
+<h3 id="what-is-edge-and-vertex-in-graph-optimization">What is edge and vertex in Graph Optimization?</h3>
+
+<p><img src="\images\SLAM\g2o\g2o_edge_vertex.png" alt="g2o_edge_vertex" /></p>
+
+<p>Let us take the above graph as an example, it is actually bundle adjustment represented in the form of a graph.</p>
+
+<h4 id="vertex">Vertex</h4>
+
+<p>Sometimes it is also called node in graph optimization. In this graph, we can see two kinds of vertices.</p>
+
+<h5 id="camera-pose-vertices">Camera Pose Vertices</h5>
+
+<p>The cyan vertices represent the  camera poses. Even for camera poses, it can also be modeled in many ways according to our needs. For the above case, the camera poses are modeled in the form of \(R,t\) as 3x3 rotation matrix and 3x1 translation vector respectively. In some cases when we only care about location, the camera pose vertices  can also be modeled as 3D position as \((x,y,z)\). When dealing with a robot moving indoor, they can even be modeled as 2D position as \((x,y)\) by ignoring the vertical position change.</p>
+
+<h5 id="landmark-vertices">Landmark Vertices</h5>
+
+<p>The orange vertices represent the landmarks. In the case of the above graph, landmarks are modeled as 3D points as \((x,y,z)\). Similar to camera poses, the  landmark vertices can also be modeled differently according to the requirements. If we ignore the vertical  direction for an indoor robot, the landmark also turns to be 2D  positions as \((x,y)\).</p>
+
+<h5 id="visualization-convention-should-the-vertices-aligned-along-a-line">Visualization convention: should the vertices aligned along a line?</h5>
+
+<p>In the field of robotics, people  usually visualize the vertices like the physical position of the camera, but the people that are familiar with probabilistic models may  visualize the nodes on a straight line. They are theoretically the same.</p>
+
+<h4 id="edges">Edges</h4>
+
+<p>Usually, edges are considered as  “constraints” in graph optimization. Practically, it can model different physical relationships between vertices, the constraints can be  explained as “estimation targets constrained by real measurements”. So <strong>the edge of the graph always means some kind of “measurement”</strong>.</p>
+
+<h5 id="edges-between-camera-poses">Edges between Camera Poses</h5>
+
+<p>In some tutorials, the edges  between camera poses are usually described as odometry constrains from  visual odometry or IMU odometry data. <strong>Actually, they are not always needed.</strong> For example, in the case of bundle adjustment, we have no measurements  between two camera poses, so we don’t have them. The graph turns to be:</p>
+
+<p><img src="\images\SLAM\g2o\g2o_edge_vertex_noedge.png" alt="g2o_edge_vertex_noedge" /></p>
+
+<h5 id="edges-between-landmarks-and-camera-poses">Edges between landmarks and camera poses</h5>
+
+<p>The edges between landmarks and camera poses represent the 3D→2D projection as a measurement method, <strong>the landmark at position</strong> \(Z_{ij}\) <strong>is projected to the image pixel</strong> \(x_{ij}\) <strong>by the camera positioned and oriented at</strong> \(X_i\). <strong>The pixel position \(x_{ij}\) is then the measurement.</strong></p>
+
+<p>Now we can see that <strong>there is always some measurement hidden in the edge connecting two vertices.</strong></p>
+
+<p>For bundle adjustment, we get image pixels as measurements. The position of our estimation targets, our  unknown landmarks, and camera poses are constrained by the  measurements. <strong>The real positions of the landmarks and the cameras must follow the physical rule to give us the measurements we get.</strong></p>
+
+<p>Solving a SLAM problem means estimating the position of landmarks and cameras.</p>
+
+<h3 id="measurements">Measurements</h3>
+
+<p>In order to solve this problem, we  need to measure the world using some measuring devices, based on the  measured information, we try to estimate the world hidden behind the  measuring devices.</p>
+
+<p>When the robot moves from one  position to another, the image taken from the camera on the robot will  be different, this difference is caused by the robot’s motion, here we  use the camera as the measuring device to measure the camera’s motion and the image is the  measurement.</p>
+
+<p>If we also mount an IMU on the  robot, the robot’s motion will also be measured by the IMU. There are  also other measurement devices, such as GPS, LiDAR, ultrasonic sensor,  and Radar sensor.</p>
+
+<p><strong>The measurement we get will never change, this is the only thing we get.</strong></p>
+
+<p>Practically, in the above bundle adjustment case, the image pixel coordinates \(x_{ij},x_{ij}^{'},x_{jk}\) and \(x_{jk}^{'}\) are the measurements we get, they correspond to 4 edges. It can easily be  seen that for 2 landmarks and 3 camera poses, we only have 4 image pixels as  measurements. We get 4x2 measured values, but on the other hand, we get  2x3 unknowns for landmarks and 3x6 unknowns for camera poses, the  measurements are definitely not enough. That’s why we need to take hundreds of image pixels.</p>
+
+<h3 id="estimations">Estimations</h3>
+
+<p>What we want to get is the landmark and camera positions, for the camera, orientation is also important. <strong>The information we want to compute is called estimation, it is always changing.</strong></p>
+
+<p>In a closed-form solution, the  unknowns can be solved directly in one step. When using iterative  methods, the estimation is always changing in each iteration. We can  then stop iterating when the estimation is good enough according to our requirements.</p>
+
+<p>The problem is, how can we know if the estimation is good or bad?</p>
+
+<p>There are many methods to define  it. Usually, we need to know the measurements model. The measurements  model can generate the measurements based on some given estimation. For  example, if we know the poses of the cameras and the positions of the landmarks, we can  simulate the measurement process and compute the image pixels’  coordinates based on the measurement model (camera projection model),  then we can compare the generated measurements and the real measurements to define if the estimations are good or bad.</p>
+
+<p>Here practically, based on the  estimated landmarks and camera poses, we can project the landmarks to  the images taken by the cameras and get the projected image pixels, for  example:</p>
+
+\[\hat x_{ij}=K[X_{ij}]Z_{ij}\]
+
+<p>\(\hat x_{ij}\) is the simulated image coordinates as a 2D projection of the 3D landmark \(Z_{ij}\) onto the image, the pose of the camera is \(X_{ij}\). In the above equation, \(X_{ij}\) is a combination of rotation and translation matrix represented as a 3x4 projection matrix \([R,t]\). \(K\) is the intrinsic matrix of the camera.</p>
+
+<p>Then we can simply compute:</p>
+
+\[e_{ij}^2=(\hat x_{ij}-x_{ij})^2\]
+
+<p>as the error between real measurement and simulated measurement based on the current estimation.</p>
+
+:ET

@@ -1,0 +1,117 @@
+I":)<p><strong>constexpr is more strict than const</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #cb4b16">int</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">;</span>
+<span style="color: #6c71c4">const</span> <span style="color: #586e75">b</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">;</span><span style="color: #657b83">//correct</span>
+<span style="color: #6c71c4">constexpr</span> <span style="color: #586e75">c</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">;</span><span style="color: #657b83">//wrong, because a has no value yet</span>
+</code></pre></div></div>
+
+<p>When declaring a constexpr, it should be assigned with a already existed value.</p>
+
+<p><strong>you can get compile-time result when using constexpr function</strong></p>
+
+<!-- more -->
+
+<p><img src="\images\cpp\constexprfunc.png" alt="constexprfunc" /></p>
+
+<p>Amazing, no debugging needed, when you are codding, you already know the result.</p>
+
+<p><strong>Thread safe programming</strong></p>
+
+<p>Use lock_guard to keep the whole function thread safe:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">#include &lt;iostream&gt;
+#include &lt;mutex&gt;
+#include &lt;thread&gt;
+</span><span style="color: #6c71c4">using</span> <span style="color: #6c71c4">namespace</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">;</span>
+
+<span style="color: #6c71c4">class</span> <span style="color: #b58900">busy</span>
+<span style="color: #93a1a1">{</span>
+<span style="color: #586e75">public:</span>
+	<span style="color: #cb4b16">void</span> <span style="color: #586e75">compute</span><span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">)</span>
+	<span style="color: #93a1a1">{</span>
+		<span style="color: #586e75">lock_guard</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">mutex</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">guard</span><span style="color: #93a1a1">(</span><span style="color: #586e75">m</span><span style="color: #93a1a1">);</span><span style="color: #657b83">//keep safe here</span>
+		<span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">a</span> <span style="color: #93a1a1">&lt;&lt;</span><span style="color: #859900">" "</span><span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">curr</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #586e75">endl</span><span style="color: #93a1a1">;</span>
+		<span style="color: #586e75">curr</span> <span style="color: #93a1a1">+=</span> <span style="color: #859900">1.0</span><span style="color: #93a1a1">;</span>
+	<span style="color: #93a1a1">}</span>
+<span style="color: #586e75">private:</span>
+    <span style="color: #cb4b16">double</span> <span style="color: #586e75">curr</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">3.0</span><span style="color: #93a1a1">;</span>
+	<span style="color: #6c71c4">mutable</span> <span style="color: #586e75">mutex</span> <span style="color: #586e75">m</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">};</span>
+
+<span style="color: #586e75">busy</span> <span style="color: #586e75">bus</span><span style="color: #93a1a1">;</span>
+
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">thread1</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">for</span> <span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">0</span><span style="color: #93a1a1">;</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">&lt;</span> <span style="color: #859900">10</span><span style="color: #93a1a1">;</span> <span style="color: #586e75">i</span><span style="color: #93a1a1">++</span><span style="color: #93a1a1">)</span>
+		<span style="color: #586e75">bus</span><span style="color: #93a1a1">.</span><span style="color: #586e75">compute</span><span style="color: #93a1a1">(</span><span style="color: #859900">1</span><span style="color: #93a1a1">);</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">thread2</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">for</span> <span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">0</span><span style="color: #93a1a1">;</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">&lt;</span> <span style="color: #859900">10</span><span style="color: #93a1a1">;</span> <span style="color: #586e75">i</span><span style="color: #93a1a1">++</span><span style="color: #93a1a1">)</span>
+		<span style="color: #586e75">bus</span><span style="color: #93a1a1">.</span><span style="color: #586e75">compute</span><span style="color: #93a1a1">(</span><span style="color: #859900">2</span><span style="color: #93a1a1">);</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">thread</span> <span style="color: #586e75">t1</span><span style="color: #93a1a1">(</span><span style="color: #586e75">thread1</span><span style="color: #93a1a1">);</span>
+	<span style="color: #586e75">thread2</span><span style="color: #93a1a1">();</span>
+	<span style="color: #586e75">t1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">join</span><span style="color: #93a1a1">();</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>The <strong>mutex</strong> and <strong>lock_guard</strong> is used to keep the thread save.</p>
+
+<p>If we don’t use <strong>mutex</strong> and <strong>lock_guard</strong>, everything will get crazy:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #859900">1</span> <span style="color: #859900">3</span>
+<span style="color: #859900">2</span> <span style="color: #859900">3</span>
+<span style="color: #859900">1</span> <span style="color: #859900">4</span>
+<span style="color: #859900">1</span> <span style="color: #859900">5</span>
+<span style="color: #859900">2</span> <span style="color: #859900">6</span>
+<span style="color: #859900">2</span> <span style="color: #859900">8</span>
+<span style="color: #859900">2</span> <span style="color: #859900">1</span> <span style="color: #859900">7</span>
+<span style="color: #859900">9</span>
+<span style="color: #859900">2</span> <span style="color: #859900">11</span>
+<span style="color: #859900">1</span> <span style="color: #859900">10</span>
+<span style="color: #859900">2</span> <span style="color: #859900">12</span>
+<span style="color: #859900">1</span> <span style="color: #859900">13</span>
+<span style="color: #859900">1</span> <span style="color: #859900">2</span> <span style="color: #859900">14</span>
+<span style="color: #859900">15</span>
+<span style="color: #859900">2</span> <span style="color: #859900">1</span> <span style="color: #859900">16</span>
+<span style="color: #859900">17</span>
+<span style="color: #859900">2</span> <span style="color: #859900">1</span> <span style="color: #859900">19</span>
+<span style="color: #859900">18</span>
+<span style="color: #859900">1</span> <span style="color: #859900">20</span>
+<span style="color: #859900">2</span> <span style="color: #859900">21</span>
+</code></pre></div></div>
+
+<p>Using <strong>mutex</strong> and <strong>lock_guard</strong>, the output is like this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #859900">1</span> <span style="color: #859900">3</span>
+<span style="color: #859900">1</span> <span style="color: #859900">4</span>
+<span style="color: #859900">1</span> <span style="color: #859900">5</span>
+<span style="color: #859900">1</span> <span style="color: #859900">6</span>
+<span style="color: #859900">1</span> <span style="color: #859900">7</span>
+<span style="color: #859900">1</span> <span style="color: #859900">8</span>
+<span style="color: #859900">1</span> <span style="color: #859900">9</span>
+<span style="color: #859900">1</span> <span style="color: #859900">10</span>
+<span style="color: #859900">1</span> <span style="color: #859900">11</span>
+<span style="color: #859900">1</span> <span style="color: #859900">12</span>
+<span style="color: #859900">2</span> <span style="color: #859900">13</span>
+<span style="color: #859900">2</span> <span style="color: #859900">14</span>
+<span style="color: #859900">2</span> <span style="color: #859900">15</span>
+<span style="color: #859900">2</span> <span style="color: #859900">16</span>
+<span style="color: #859900">2</span> <span style="color: #859900">17</span>
+<span style="color: #859900">2</span> <span style="color: #859900">18</span>
+<span style="color: #859900">2</span> <span style="color: #859900">19</span>
+<span style="color: #859900">2</span> <span style="color: #859900">20</span>
+<span style="color: #859900">2</span> <span style="color: #859900">21</span>
+<span style="color: #859900">2</span> <span style="color: #859900">22</span>
+</code></pre></div></div>
+
+<p>Use atomic to keep a single variable thread safe:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">mutable</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">atomic</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">callCount</span><span style="color: #93a1a1">{</span> <span style="color: #859900">0</span> <span style="color: #93a1a1">};</span>
+</code></pre></div></div>
+
+<p>Just wrap the variable as above, it becomes thread safe.</p>
+:ET

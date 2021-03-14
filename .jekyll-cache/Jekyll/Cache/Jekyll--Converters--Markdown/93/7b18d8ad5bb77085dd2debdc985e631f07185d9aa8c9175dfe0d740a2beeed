@@ -1,0 +1,64 @@
+I"�<h3 id="decltype用法"><strong>decltype用法:</strong></h3>
+
+<p>In C++11, perhaps the primary use for decltypeis declaring function templates where the <strong>function’s return typedepends on its parameter types.</strong></p>
+
+<p>decltype 用于获得某个未知变量的类型，在什么情况下我们不知道变量的类型呢？
+当然是使用template或auto的时候：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">funcValue</span><span style="color: #93a1a1">(</span><span style="color: #586e75">T</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">)</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">auto</span> <span style="color: #586e75">subParam</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">;</span>
+	<span style="color: #6c71c4">decltype</span><span style="color: #93a1a1">(</span><span style="color: #6c71c4">auto</span><span style="color: #93a1a1">)</span> <span style="color: #586e75">subSubParam</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">subParam</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<!-- more -->
+
+<h3 id="大括号用法"><strong>大括号用法</strong></h3>
+
+<p><strong>初始化使用大括号（统一初始化符号）：</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">vector</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">v</span><span style="color: #93a1a1">{</span> <span style="color: #859900">1</span><span style="color: #93a1a1">,</span> <span style="color: #859900">3</span><span style="color: #93a1a1">,</span> <span style="color: #859900">5</span> <span style="color: #93a1a1">};</span> <span style="color: #657b83">// v's initial content is 1, 3, 5 </span>
+</code></pre></div></div>
+
+<p><strong>初始化类成员函数直接用大括号：</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">class</span> <span style="color: #b58900">Widget</span> <span style="color: #93a1a1">{</span>
+<span style="color: #002b36;background-color: #dc322f">…</span>
+<span style="color: #586e75">private:</span>
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">{</span> <span style="color: #859900">0</span> <span style="color: #93a1a1">};</span> <span style="color: #657b83">// fine, x's default value is 0</span>
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">y</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">0</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// also fine</span>
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">z</span><span style="color: #93a1a1">(</span><span style="color: #859900">0</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// error!</span>
+<span style="color: #93a1a1">};</span> 
+</code></pre></div></div>
+
+<p><strong>总之，以前使用()和=的地方，统统用大括号代替，肯定没错</strong></p>
+
+<p><strong>但是，大括号不允许隐式类型转换：</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #cb4b16">double</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">y</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">z</span><span style="color: #93a1a1">;</span>
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">sum1</span><span style="color: #93a1a1">{</span> <span style="color: #586e75">x</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">y</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">z</span> <span style="color: #93a1a1">};</span> <span style="color: #657b83">// error! sum of doubles may  not be expressible as int</span>
+</code></pre></div></div>
+
+<p><strong>此外，当我们使用 std::initializer_list 初始化一个类时，必须使用大括号：</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">class</span> <span style="color: #b58900">Widget</span>
+<span style="color: #93a1a1">{</span>
+<span style="color: #586e75">public:</span>
+	<span style="color: #586e75">Widget</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">initializer_list</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">int</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">il</span><span style="color: #93a1a1">)</span>
+	<span style="color: #93a1a1">{</span>
+		<span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">0</span><span style="color: #93a1a1">;</span>
+		<span style="color: #6c71c4">for</span> <span style="color: #93a1a1">(</span><span style="color: #6c71c4">auto</span> <span style="color: #586e75">itre</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">il</span><span style="color: #93a1a1">.</span><span style="color: #586e75">begin</span><span style="color: #93a1a1">();</span> <span style="color: #586e75">itre</span> <span style="color: #93a1a1">!=</span> <span style="color: #586e75">il</span><span style="color: #93a1a1">.</span><span style="color: #586e75">end</span><span style="color: #93a1a1">();</span> <span style="color: #586e75">itre</span><span style="color: #93a1a1">++</span><span style="color: #93a1a1">,</span><span style="color: #586e75">i</span><span style="color: #93a1a1">++</span><span style="color: #93a1a1">)</span>
+			<span style="color: #586e75">m_l</span><span style="color: #93a1a1">[</span><span style="color: #586e75">i</span><span style="color: #93a1a1">]</span> <span style="color: #93a1a1">=</span> <span style="color: #93a1a1">*</span><span style="color: #586e75">itre</span><span style="color: #93a1a1">;</span>
+	<span style="color: #93a1a1">}</span>
+<span style="color: #586e75">private:</span>
+	<span style="color: #cb4b16">int</span> <span style="color: #586e75">m_l</span><span style="color: #93a1a1">[</span><span style="color: #859900">256</span><span style="color: #93a1a1">];</span>
+<span style="color: #93a1a1">};</span>
+
+<span style="color: #586e75">Widget</span> <span style="color: #586e75">w4</span><span style="color: #93a1a1">{</span> <span style="color: #859900">1</span><span style="color: #93a1a1">,</span><span style="color: #859900">2</span><span style="color: #93a1a1">,</span><span style="color: #859900">3</span><span style="color: #93a1a1">,</span><span style="color: #859900">4</span> <span style="color: #93a1a1">};</span>
+</code></pre></div></div>
+
+<p><strong>并且使用这种初始化方法不支持隐式类型转换</strong></p>
+
+:ET

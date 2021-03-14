@@ -1,0 +1,16 @@
+I"Í	
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #93a1a1">[</span><span style="color: #586e75">DllImport</span><span style="color: #93a1a1">(</span><span style="color: #859900">"user32.dll"</span><span style="color: #93a1a1">)]</span>   
+<span style="color: #6c71c4">public</span> <span style="color: #6c71c4">static</span> <span style="color: #6c71c4">extern</span> <span style="color: #6c71c4">void</span> <span style="color: #586e75">SwitchToThisWindow</span><span style="color: #93a1a1">(</span><span style="color: #586e75">IntPtr</span> <span style="color: #586e75">hWnd</span><span style="color: #93a1a1">,</span><span style="color: #cb4b16">bool</span> <span style="color: #586e75">turnon</span><span style="color: #93a1a1">);</span>
+<span style="color: #586e75">String</span> <span style="color: #586e75">ProcWindow</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">"wechat"</span><span style="color: #93a1a1">;</span>
+<span style="color: #6c71c4">private</span> <span style="color: #6c71c4">void</span> <span style="color: #586e75">switchToWechart</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #586e75">Process</span><span style="color: #93a1a1">[]</span> <span style="color: #586e75">procs</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">Process</span><span style="color: #93a1a1">.</span><span style="color: #586e75">GetProcessesByName</span><span style="color: #93a1a1">(</span><span style="color: #586e75">ProcWindow</span><span style="color: #93a1a1">);</span>
+    <span style="color: #6c71c4">foreach</span> <span style="color: #93a1a1">(</span><span style="color: #586e75">Process</span> <span style="color: #586e75">proc</span> <span style="color: #6c71c4">in</span> <span style="color: #586e75">procs</span><span style="color: #93a1a1">)</span>
+    <span style="color: #93a1a1">{</span>
+         <span style="color: #657b83">//switch to process by name</span>
+         <span style="color: #586e75">SwitchToThisWindow</span><span style="color: #93a1a1">(</span><span style="color: #586e75">proc</span><span style="color: #93a1a1">.</span><span style="color: #586e75">MainWindowHandle</span><span style="color: #93a1a1">,</span> <span style="color: #6c71c4">true</span><span style="color: #93a1a1">);</span>
+    <span style="color: #93a1a1">}</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+:ET

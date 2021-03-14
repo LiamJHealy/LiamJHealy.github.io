@@ -1,0 +1,74 @@
+I"©$<p>The type deduction of Template and auto</p>
+
+<p><strong>The type deduction of template will ignore one level of reference and pointer</strong></p>
+
+<p><strong>Example 1:</strong></p>
+
+<p>Input argument as reference</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">T</span><span style="color: #93a1a1">&amp;</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">);</span> 
+
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">27</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// x is an int</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span> <span style="color: #586e75">cx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// cx is a const int</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span><span style="color: #93a1a1">&amp;</span> <span style="color: #586e75">rx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// rx is a reference to x as a const int </span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">x</span><span style="color: #93a1a1">);</span><span style="color: #657b83">// T is int</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">cx</span><span style="color: #93a1a1">);</span><span style="color: #657b83">// T is const int, param's typeis const int&amp;</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">rx</span><span style="color: #93a1a1">);</span><span style="color: #657b83">// T is const int, param's type is const int&amp; </span>
+</code></pre></div></div>
+
+<!-- more -->
+
+<p><strong>Example 2:</strong></p>
+
+<p>Input argument as pointer</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">T</span><span style="color: #93a1a1">*</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// param isnow a pointer</span>
+
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">27</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span> <span style="color: #93a1a1">*</span><span style="color: #586e75">px</span> <span style="color: #93a1a1">=</span> <span style="color: #93a1a1">&amp;</span><span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// px is a ptr to x as a const int </span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #93a1a1">&amp;</span><span style="color: #586e75">x</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// T is int, param's typeis int*</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">px</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// T is const int, param's type is const int* </span>
+</code></pre></div></div>
+
+<p><strong>Example 3:</strong></p>
+
+<p>Input argument as double reference, one will be ignored</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">T</span><span style="color: #93a1a1">&amp;&amp;</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// param isnow a universal referenceÂ </span>
+
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">27</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span> <span style="color: #586e75">cx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span><span style="color: #93a1a1">&amp;</span> <span style="color: #586e75">rx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">x</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// x is lvalue, so T is int&amp;, param's type is also int&amp;</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">cx</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// cx is lvalue, so T is const int&amp;, param's type is also const int&amp;</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">rx</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// rx is lvalue, so T is const int&amp;, param's type is also const int&amp;</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #859900">27</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// 27 is rvalue, so T is int, param's type istherefore int&amp;&amp; </span>
+</code></pre></div></div>
+
+<p><strong>Example 4:</strong></p>
+
+<p>Input argument as value, cont and &amp; will all be ignored</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">template</span><span style="color: #93a1a1">&lt;</span><span style="color: #6c71c4">typename</span> <span style="color: #b58900">T</span><span style="color: #93a1a1">&gt;</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">T</span> <span style="color: #586e75">param</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// param is now passed by value </span>
+
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #859900">27</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span> <span style="color: #586e75">cx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #6c71c4">const</span> <span style="color: #cb4b16">int</span><span style="color: #93a1a1">&amp;</span> <span style="color: #586e75">rx</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">;</span> <span style="color: #657b83">// as before</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">x</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// T's and param's types are both int</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">cx</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// T's and param's types are again both int</span>
+<span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">rx</span><span style="color: #93a1a1">);</span> <span style="color: #657b83">// T's and param's types are stillboth int </span>
+</code></pre></div></div>
+
+<p>In the following table:</p>
+
+<p>The type before / is the type of T</p>
+
+<p>The type after / is the type of param</p>
+
+<p><img src="\images\cpp\type_deduction.png" alt="type_deduction" /></p>
+
+:ET

@@ -1,0 +1,124 @@
+I"�8<h3 id="traditional-thread"><center>Traditional Thread<center></center></center></h3>
+
+<p>C++ 11 supports multi-threading, for which we previously used pthread or boost. Standard C++ 11’s threading is based on boost::thread, now it’s cross platform and no dependency needed.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">#include &lt;thread&gt;
+#include &lt;iostream&gt;
+</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">"I am a seperate thread..."</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #6c71c4">thread</span> <span style="color: #586e75">newThread</span><span style="color: #93a1a1">(</span><span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span><span style="color: #657b83">//now it's running</span>
+        <span style="color: #657b83">//do something else .... //</span>
+	<span style="color: #586e75">newThread</span><span style="color: #93a1a1">.</span><span style="color: #586e75">join</span><span style="color: #93a1a1">();</span><span style="color: #657b83">//before the ending, newThread should join</span>
+        <span style="color: #6c71c4">return</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>The code is simple, the thread function will run right after the std::thread is declared.</p>
+
+<!-- more -->
+
+<p><strong>The newThread must join the main thread before the end of the program, “join” means the main thread will wait for the newThread to be finished.</strong></p>
+
+<p>The std::thread has a obvious drawback: it is simply a thread, <strong>it can not return any value</strong>. So if we want to get something from a thread, we can only use some global variable to exchange the result. Even we use global variable to pass result, <strong>we still don’t know when the result is ready</strong>, then we need one more variable as signal variable to record the status, that’s not acceptable.</p>
+
+<h3 id="prefer-stdasync-to-stdthread"><center>Prefer std::async to std::thread</center></h3>
+
+<p>One solution C++ 11 provides is the task-based std::async, it’s even simpler:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">#include &lt;future&gt;
+#include &lt;iostream&gt;
+#include &lt;chrono&gt;
+</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">this_thread</span><span style="color: #93a1a1">::</span><span style="color: #586e75">sleep_for</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">chrono</span><span style="color: #93a1a1">::</span><span style="color: #586e75">seconds</span><span style="color: #93a1a1">(</span><span style="color: #859900">3</span><span style="color: #93a1a1">));</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">"slept for 3 second</span><span style="color: #d33682">\n</span><span style="color: #859900">"</span><span style="color: #93a1a1">;</span>
+	<span style="color: #6c71c4">return</span> <span style="color: #859900">1</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">auto</span> <span style="color: #586e75">result</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span>
+        <span style="color: #657b83">//do something else//</span>
+        <span style="color: #6c71c4">return</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>Just declare the std::async like the std::thread, done.</p>
+
+<p>You don’t need to care anything else, the std::async will take care of everything, actually, it is managing the threads for you.</p>
+
+<p>But there are a lot of tricks you need to know:</p>
+
+<p><strong><center>1 std::async must be assigned to a variable</center></strong></p>
+
+<p>This is different from std::thread, if we only declare it like:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span><span style="color: #657b83">//Wrong!</span>
+</code></pre></div></div>
+
+<p>It doesn’t work, the testThread will run, but the program will be blocked and waits until the testThread finished. What we want is making it run in a separate thread, parallel.</p>
+
+<p>So the correct way will be:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">result</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span><span style="color: #657b83">//Good</span>
+</code></pre></div></div>
+
+<p>the result’s type is actually <strong><em>std::future&lt;int&gt;</em></strong>, we use <strong><em>auto</em></strong> for conveniency. <strong><em>int</em></strong> is the returned type of testThread function. So if it returns something else, for example void, the returned type will be <strong><em>std::future&lt;void&gt;</em></strong>.</p>
+
+<p><strong><center>2 Specify launch::async</center></strong></p>
+
+<p>std::async can launch in two modes, one is launch::deferred and the other is launch::async.</p>
+
+<p>lauch::deferred is rarely used, it means the task testThread will only be launched when result.get() or result.wait() is called.</p>
+
+<p><strong>lauch::async is mostly used, it means the task testThread will immediately  run and it will be forced to run in another thread.</strong></p>
+
+<p><strong><center>3 get the result</center></strong></p>
+
+<p>As the beginning of this blog described, we don’t know when the result is ready when using std::thread.</p>
+
+<p>For std::async, we use <strong><em>result.get()</em></strong> to get the result, and the get() will wait for the thread to finish and return the value:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #cb4b16">int</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">this_thread</span><span style="color: #93a1a1">::</span><span style="color: #586e75">sleep_for</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">chrono</span><span style="color: #93a1a1">::</span><span style="color: #586e75">seconds</span><span style="color: #93a1a1">(</span><span style="color: #859900">3</span><span style="color: #93a1a1">));</span>
+	<span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">cout</span> <span style="color: #93a1a1">&lt;&lt;</span> <span style="color: #859900">"slept for 3 second</span><span style="color: #d33682">\n</span><span style="color: #859900">"</span><span style="color: #93a1a1">;</span>
+	<span style="color: #6c71c4">return</span> <span style="color: #859900">1</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #cb4b16">void</span> <span style="color: #586e75">main</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #6c71c4">auto</span> <span style="color: #586e75">result</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span>
+        <span style="color: #cb4b16">int</span> <span style="color: #586e75">returnedValue</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">result</span><span style="color: #93a1a1">.</span><span style="color: #586e75">get</span><span style="color: #93a1a1">();</span><span style="color: #657b83">//wait for 3 seconds.</span>
+        <span style="color: #6c71c4">return</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>In the above code block, <strong>the <em>result.get()</em> will wait until the testThread finished computing</strong> and get the returned value.</p>
+
+<p>If we don’t call <em>result.get()</em> but do some other work:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">result</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span>
+<span style="color: #657b83">//do something else for longer than 3 seconds</span>
+<span style="color: #cb4b16">int</span> <span style="color: #586e75">returnedValue</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">result</span><span style="color: #93a1a1">.</span><span style="color: #586e75">get</span><span style="color: #93a1a1">();</span>
+</code></pre></div></div>
+
+<p>The <em>result.get()</em> will  return the value immediately, because <strong>the testThread is already done and the returned value is already stored in the variable <em>result</em></strong>, you can use the value any time you want.</p>
+
+<p><strong><center>4 result.get() can only be called once</center></strong></p>
+
+<p>Inside <strong><em>result.get()</em></strong>, it is actually calling <strong><em>result.wait()</em></strong> and <strong>move()</strong>. Once it is called, the returned value of testThread is moved out and no longer valid, we can call <strong><em>result.valid()</em></strong> to check:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">auto</span> <span style="color: #586e75">result</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">(</span><span style="color: #586e75">std</span><span style="color: #93a1a1">::</span><span style="color: #586e75">launch</span><span style="color: #93a1a1">::</span><span style="color: #586e75">async</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">testThread</span><span style="color: #93a1a1">);</span>
+<span style="color: #657b83">//do something here</span>
+<span style="color: #6c71c4">if</span><span style="color: #93a1a1">(</span><span style="color: #586e75">result</span><span style="color: #93a1a1">.</span><span style="color: #586e75">valid</span><span style="color: #93a1a1">())</span><span style="color: #657b83">//If you don't know get() is already called</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #cb4b16">int</span> <span style="color: #586e75">returnedValue</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">result</span><span style="color: #93a1a1">.</span><span style="color: #586e75">get</span><span style="color: #93a1a1">();</span>    
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>Normally we don’t need to check the result.valid(), the best way to go is copying the returned value to another variable, in the above case <strong><em>int returnedValue</em></strong>.</p>
+
+:ET

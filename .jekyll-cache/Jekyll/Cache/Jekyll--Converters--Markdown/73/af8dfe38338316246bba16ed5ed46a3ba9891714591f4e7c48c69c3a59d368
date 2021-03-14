@@ -1,0 +1,113 @@
+I"�<p>Structural SVM is a variation of SVM, hereafter to be refered as SSVM</p>
+
+<h3 id="special-prediction-function-of-ssvm">Special prediction function of SSVM</h3>
+
+<p>Firstly let’s recall the normal SVM’s prediction function:</p>
+
+\[f(x)=sgn((ω\cdot x)+b)\]
+
+<p>ω is the weight vector，x is the input，b is the bias，\(sgn\) is sign function，\(f(x)\) is the prediction result.</p>
+
+<p>On of SSVM’s specialties is its prediction function：</p>
+
+\[f_ω (x)=argmax_{y∈Υ} [ω\cdot Φ(x,y)]\]
+
+<p>y is the possible prediction result，Υ is y’s searching space，and Φ is some function of x and y.Φ will be a joint feature vector describes the relationship between x and y</p>
+
+<p>Then for some given \(\omega\), different prediction will be made according to different x.</p>
+
+<!-- more -->
+
+<h3 id="ssvms-special-loss-function-and-its-optimization-problem">SSVM’s special loss function and its optimization problem</h3>
+
+<p>For a normal SVM, we use the Hinge Loss as the loss function:</p>
+
+\[[1−y_i (ω\cdot x_i+b)]_+\]
+
+<p>Its optimization problem will be:</p>
+
+\[argmin_{(ω,b)}⁡\left\{ { \frac{1}{2}|ω|^2+C\sum_{i=1}^N[ 1−y_i (ω\cdot x_i+b)]_+}\right\}\]
+
+<p>for SSVM, the loss function will be more complicated,</p>
+
+<p>The risk function in the paper is the loss function, loss function is the function to compute the difference between the prediction and the real value, it can be represented as:</p>
+
+\[Δ(y,\hat{y})\]
+
+<p>for a given \(x_i\), we can also say that the prediction \(\hat{y_i}\) of \(x_i\) is a function of ω：</p>
+
+\[\hat{y_i}(ω)=argmax_{y∈Υ} [ω\cdot Φ(x_i,y)]\]
+
+<p>for the new loss function, our optimization problem turns to be:</p>
+
+\[argmin_{(ω,b)}⁡\left\{ { \frac{1}{2}|ω|^2+C\sum_{i=1}^NΔ(y_i,\hat{y_i} (ω))}\right\}\]
+
+<p>different from the hinge loss function, the loss function we use now:</p>
+
+\[Δ(y_i,\hat{y_i}(ω))\]
+
+<p>is not convex according to variable \(\omega\), so this problem is not solvable.</p>
+
+<p>Why is it non-convex? Because \(\hat{y_i}(ω)\) is very complicated, it results from searching a discrete space \(Υ\), which can not be expressed by any kind of convex function.</p>
+
+<p>So we should firstly turn this non-convex problem to be convex.</p>
+
+<h3 id="turning-ssvms-non-convex-optimization-problem-to-be-convex">Turning SSVM’s non-convex optimization problem to be convex</h3>
+
+<h6 id="considering-the-following-non-equality">Considering the following non-equality:</h6>
+
+\[Δ(y_i,\hat{y_i}(ω)) \leqslant Δ(y_i,\hat{y_i}(ω)) + ω\cdot Φ(x_i,\hat{y_i}(ω))-ω\cdot Φ(x_i,y_i)\]
+
+<p>for given \(x_i\) and ω：</p>
+
+<p>\(ω\cdot Φ(x_i,\hat{y_i}(ω))\) is the max，so</p>
+
+<p>\(ω\cdot Φ(x_i,\hat{y_i}(ω))−ω\cdot Φ(x_i,y_i)\) must be bigger or equal to 0</p>
+
+<p>step further:</p>
+
+\[\begin{align*}
+&amp; Δ(y_i,\hat{y_i}(ω))+ω\cdot Φ(x_i,\hat{y_i}(ω))−ω\cdot Φ(x_i,y_i)\\
+&amp; \leqslant max_{y∈Υ}[Δ(y_i,y)+ω\cdot Φ(x_i,y) - ω\cdot Φ(x_i,y_i)] \\
+&amp; \leqslant max_{y∈Υ}[Δ(y_i,y)+ω\cdot Φ(x_i,y)] - ω\cdot Φ(x_i,y_i)\\
+\end{align*}\]
+
+<p>as the last term in the second line is not related to y, so it can be moved out of \(max\).</p>
+
+<p>finally we get：</p>
+
+\[Δ(y_i,\hat{y_i}(ω))\leqslant max_{y∈Υ}[Δ(y_i,y)+ω\cdot Φ(x_i,y)] - ω\cdot Φ(x_i,y_i)\]
+
+<p>The above described derivation shows the conversion.</p>
+
+<p>The key part, our loss function turns to be:</p>
+
+\[max_{y∈Υ}[Δ(y_i,y)+ω\cdot Φ(x_i,y)] - ω\cdot Φ(x_i,y_i)\]
+
+<p>this is a convex function to \(\omega\), cause we have a theorem:</p>
+
+<p><strong>The upper bound of a convex function is also convex.</strong></p>
+
+<p>For \(y\)’s value space \(Y\), every \(y\) gets its corresponding convex function:</p>
+
+\[ω\cdot Φ(x_i,y)\]
+
+<p>The upper bounds of all these convex functions form a convex function, according to \(\omega\), the first term \(Δ(y_i,y)\) is a constant, so this loss function is convex to \(\omega\).</p>
+
+<p>What’s more, we also know that:</p>
+
+<p><strong>The summation of convex function is also convex</strong></p>
+
+<p>Then the converted optimization problem:</p>
+
+\[argmin_{(ω,b)}⁡\left\{ { \frac{1}{2}|ω|^2+C\sum_{i=1}^N (\,  max_{y∈Υ}[Δ(y_i,y)+ω\cdot Φ(x_i,y)] - ω\cdot Φ(x_i,y_i)} )\, \right\}\]
+
+<p>turns to be a convex problem.</p>
+
+<p>The second half of the paper solves the optimization problem with latent variables using the same technique.</p>
+
+<p>Link of the paper:</p>
+
+<p><a href="http://www.cs.cornell.edu/~cnyu/papers/siso_workshop.pdf">Learning Structural SVMs with Latent Variables</a></p>
+
+:ET

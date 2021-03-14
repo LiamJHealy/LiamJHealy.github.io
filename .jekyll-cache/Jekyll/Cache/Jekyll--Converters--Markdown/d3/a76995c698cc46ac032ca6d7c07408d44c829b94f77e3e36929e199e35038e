@@ -1,0 +1,139 @@
+I"<h3 id="simple-neuron"><center>Simple Neuron</center></h3>
+
+<p><img src="\images\machine_learning\Neuron0.png" alt="Neuron0" /></p>
+
+<p>The above diagram shows a neuron in NN, it simulates a real neuron:</p>
+
+<p>it has <strong>inputs</strong>: \(x_{0},x_{1}\dots x_{i}\)</p>
+
+<p>it has weights for each inputs: \(\omega_{0},\omega_{1}\dots \omega_{i}\): <strong>weight vector</strong></p>
+
+<p>it has <strong>bias</strong> \(b\)</p>
+
+<p>it has a <strong>threshold</strong> for the “activation function”</p>
+
+<!-- more -->
+
+<p>The neuron process the inputs with the equation inside the circle, if the result is bigger than the threshold, the neuron will <strong>not be activated and output 0</strong>, if the result if bigger than the threshold, the neuron will be <strong>activated and output 1</strong>.</p>
+
+<p><strong>We can consider a neuron as a binary classifier</strong>.</p>
+
+<h3 id="practical-thinking"><center>Practical Thinking</center></h3>
+
+<p>Sometimes we choose the activation function as \(Max(0,\omega \cdot x+b)\):</p>
+
+<p><img src="\images\machine_learning\Neuron1.png" alt="Neuron1" /></p>
+
+<p>Let’s make it a practical case:</p>
+
+<p><strong>\(x\) is a 3072x1 feature vector</strong>, then for this neuron,</p>
+
+<p><strong>\(\omega\) is a 1x3072 weights vector</strong>,</p>
+
+<p><strong>\(b\) is a real value bias</strong>.</p>
+
+<p>If we have 100 neurons on the 1st layer, they get the same input \(x_{0},x_{1}\dots x_{i}\) with different weight vectors. We can <strong>combine all these 100 neurons to one big weight matrix \(W_1\), its size is 100x3071, each row of \(W_1\) is a weights vector of a neuron, so the output of the 1st layer will be a 100x1 output vector: each neuron outputs one value.</strong> It means the information is extracted and the dimension of the information is reduced from 3071 to 100. The equation for the 1st layer will be:</p>
+
+<center>$$Max(0,W_1\cdot x + b_1)$$:output a 100x1 vector</center>
+
+<p>Now we add the 2nd layer, we set it to be 10 neurons, then it will receive the 100 inputs and output 10 inputs, combining the 1st and the second layer:</p>
+
+<center>$$Max(0,W_2\cdot Max(0,W_1\cdot x + b_1) + b_2)$$:output a 10x1 vector</center>
+
+<p><strong>\(W_2\) is a 10x100 weights matrix, it contains all the computation of the 2nd layer, each row of \(W_2\) is a weights vector of a neuron in the 2nd layer. \(b_2\) is the 10x1 bias vector of the 2nd layer.</strong></p>
+
+<p>Of course we can add the 3rd, 4th layers and so on, then the whole NN can be represented as a chain of activation functions:\(Max(0,-)\) .</p>
+
+<h3 id="more-possibilities-of-activation-function"><center>More possibilities of Activation Function</center></h3>
+
+<h4 id="sigmoid"><strong><center>Sigmoid</center></strong></h4>
+
+<p>Previously, we usually use sigmoid function \(\frac{1}{1+e^{-x}}\) as activation function:</p>
+
+<p><img src="\images\machine_learning\Neuron.png" alt="Neuron" /></p>
+
+<p>One reason to use this function is because <strong>it’s differentiable</strong>, we will use gradient descent to train the NN, we need the activation function to be differentiable.</p>
+
+<p>Another reason is because this function <strong>always output a value between 0 and 1.</strong></p>
+
+<p>And it <strong>can be explained physically: its output value can be understood as a possibility:</strong></p>
+
+<center>$$\sigma(\sum_ix_i\cdot \omega_i+b)=P(y_i =1\vert x_i;\omega)$$ </center>
+
+<p>Using regularization, we may notice that the \(\omega\) gets smaller when the training process goes on, it can be explained as forgetting: <strong>the \(\omega\) turns smaller means the information in each neurons is weaker, which means the NN is forgetting</strong>.</p>
+
+<p>The 3rd reason is historical ….</p>
+
+<p><strong>But it is rarely used now</strong>, it has the following drawbacks:</p>
+
+<p>1, <strong>When \(x\rightarrow\infty\), the sigmoid’s gradient is almost 0</strong>, the same thing happens when \(x\rightarrow-\infty\). During the back propagation, <strong>if \(\omega\) is very big(may be initialized this way), gradient will be very small, then the update in every training iteration will be very tiny:it doesn’t update at all, the learning efficiency will be very low.</strong></p>
+
+<p>2, <strong>sigmoid function always outputs positive value, during the back propagation, the gradient of \(\omega\) is either all positive or negative, which brings a zig-zag dynamics, this is also of low efficiency.</strong></p>
+
+<h4 id="tanh"><strong><center>Tanh</center></strong></h4>
+
+<p>In order to improve the sigmoid, Tanh is invented, it uses the sigmoid’s nonlinearity, actually it is a scaled sigmoid:</p>
+
+\[Tanh(x) = 2\sigma(2x)-1\]
+
+<p><img src="\images\machine_learning\tanh.png" alt="tanh" /></p>
+
+<p>Obviously, it overcomes the sigmoid’s 2nd drawback.</p>
+
+<h4 id="relu"><strong><center>ReLU</center></strong></h4>
+
+<p>The Rectified Linear Unit(ReLU) is another alternative, this is the one we used in “Practical Thingking”, it’s simple:</p>
+
+<center>$$f(x)=max(0,x)$$ combining the neuron: $$f(x) = Max(0,\omega\cdot x+b)$$</center>
+
+<p><strong>Pro:</strong></p>
+
+<p>1, <strong>Computing cost is very low</strong>, simple thresholding, relative to sigmoid’s exponentials.</p>
+
+<p>2, <strong>Very fast convergence</strong> using stochastic gradient descent</p>
+
+<p><strong>Con:</strong></p>
+
+<p><strong>It may die after some updates</strong>, the neuron may be always deactivated and output 0. Why? Take a look at the following diagram:</p>
+
+<p><img src="\images\machine_learning\relu.png" alt="relu" /></p>
+
+<h4 id="leaky-relu"><strong><center>Leaky ReLU</center></strong></h4>
+
+<p>In order to overcome the drawback of ReLU, the Leaky ReLU introduce non-zero:</p>
+
+<p>when \(x&lt;0\:: f(x)=ax\) (\(a\) is a small constant value)</p>
+
+<p>when \(x&gt;0\::f(x)=x\)</p>
+
+<p><img src="\images\machine_learning\leakyrelu.png" alt="leakyrelu" /></p>
+
+<h4 id="maxout"><strong><center>Maxout</center></strong></h4>
+
+<p>Maxout’s idea is not using a fixed activation function but learn one.</p>
+
+<p><strong>A Maxout neuron contains more than 1 \((w,b)\) pairs.</strong></p>
+
+<p>For traditional neuron, we get \(f(x)=\omega\cdot x+b\)</p>
+
+<p>For Maxout neuron, we get</p>
+
+<p>\(f_1(x)=\omega_1\cdot x +b_1\) ,\(f_2(x)=\omega_2\cdot x +b_2\) and \(f_i(x)=\omega_i\cdot x + b_i\).</p>
+
+<p>The final result will be the max of all \(f_i(x)\):</p>
+
+<center>$$Maxout(x)=\displaystyle\max_{i=1\dots k}(f_i(x))=\max_{i=1\dots k}(\omega_i\cdot x + b_i)$$</center>
+
+<p>\(k\) means the Maxout neuron contains \(k\) linear models</p>
+
+<p>The max will win and used as the output, that’s why it is called “Maxout”.</p>
+
+<h3 id="which-type-of-neuron-should-we-use"><center>Which Type of Neuron should we use?</center></h3>
+
+<p>We should follow this priority:</p>
+
+<p><strong>Maxout/Leaky ReLU &gt; ReLU &gt; Tanh</strong></p>
+
+<p><strong>Never use Sigmoid</strong></p>
+
+:ET

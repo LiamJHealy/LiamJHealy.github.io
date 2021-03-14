@@ -1,0 +1,279 @@
+I"�B<h4 id="框架的文件夹结构">框架的文件夹结构</h4>
+
+<p>_includes ：存放了一些定制的网页元素，比如header.html是整个页面的头，也就是最上面的菜单栏。又如author.html，是作者页面，用于展示作者信息。通用的JS文件都放在scripts.html里。</p>
+
+<p>_layout ：主要定义了两种类型页面的排版，post是为单篇文章设计的排版，post-index是为一系列文章设计的排版。</p>
+
+<p>_posts：用于存放所有文章的md文件，md文件的命名必须严格按照”年-月-日-标题”的格式命名。</p>
+
+<p>_sass：用于存放定制的css文件，比如_page就规定了页面各个元素的宽度颜色字体，_variables定义了一些全局变量的值。</p>
+
+<p>_site：模板编译完成后生成的页面，这个是真正可以直接部署的页面，平时不用看</p>
+
+<p>_templates：规定了不同类型的排版文件中可以定义的变量</p>
+
+<p><strong>前面不带下划线的文件夹存放用户自己定制的页面，比较重要的有：</strong></p>
+
+<p>images：用于存放图片</p>
+
+<p>search：用于存放搜索框页面</p>
+
+<p>tags：用于存放按照tags列出所有文章的页面</p>
+
+<p>categories：用于存放按照category列出所有文章的页面</p>
+
+<p>posts：用于存放列出所有文章的页面</p>
+
+<!-- more -->
+
+<p><strong>对于我本人的页面</strong></p>
+
+<p>aethetics文件夹里面是浏览所有categories为Aethetics的文章的页面，cpp是浏览categories为cpp的文章的页面等等，都是手动复制的，非动态</p>
+
+<p><strong>重要的文件</strong></p>
+
+<p>_config.yml：非常重要，存放用于定制框架的全局变量</p>
+
+<p>index.html：非常重要，用于存放本站的首页，也就是latest posts页</p>
+
+<p>search.json：非常重要，search功能必需文件</p>
+
+<h4 id="框架变量的形式">框架变量的形式:{{}}</h4>
+
+<p>框架的变量一般用双大括号表示，例如在根目录的index.html中：</p>
+
+<p><strong>{{site.url}}</strong></p>
+
+<p>就是页面url的字符串，对于index.html页而言，经过编译的结果就是<strong>“einsteinliu.github.io/index.html”</strong>这个字符串</p>
+
+<p>又比如：</p>
+
+<p><strong>{{post.image.feature}}</strong></p>
+
+<p>post是指排版类型为post的一个页面，而post的排版类型在<strong>_template</strong>文件夹的post文件中规定了如下可以定义的变量：</p>
+
+<p>layout: {{ layout }}</p>
+
+<p>title: {{ title }}</p>
+
+<p>modified:</p>
+
+<p>categories: {{ dir }}</p>
+
+<p>description:</p>
+
+<p>tags: []</p>
+
+<p>image:</p>
+
+<p>feature:</p>
+
+<p>credit:</p>
+
+<p>creditlink:</p>
+
+<p>comments:</p>
+
+<p>所以image就是post的子变量，而image这个子变量又有一个子变量叫做feature，这个变量用于存放这篇文章的题图，比如我们使用image文件夹中的Caspar_David_Friedrich_Der_Monch_am_Meer_Google_Art_Project.jpg作为题图，我们就要在相应post的MD文件中加上：</p>
+
+<p><strong>image:</strong></p>
+
+<p><strong>feature: Caspar_David_Friedrich_Der_Monch_am_Meer_Google_Art_Project.jpg</strong></p>
+
+<p><strong>credit: Der Mönch am Meer</strong></p>
+
+<p><strong>creditlink: https://en.wikipedia.org/wiki/The_Monk_by_the_Sea</strong></p>
+
+<p>于是<strong>{{post.image.feature}}</strong>就会被编译为字符串“Caspar_David_Friedrich_Der_Monch_am_Meer_Google_Art_Project.jpg”</p>
+
+<p>同理，<strong>{{post.image.credit}}</strong>会被编译为字符串“Der Mönch am Meer”</p>
+
+<h4 id="框架控制流的形式-">框架控制流的形式：{% %}</h4>
+
+<p>框架生成网站的逻辑控制流均使用以上形式，例如在根目录的index.html文件中：</p>
+
+<p><strong>{% for post in paginator.posts %}</strong></p>
+
+<p><strong>{% endfor %}</strong></p>
+
+<p>这一对循环语句中间，post 就是属于 paginator 的文章，也就是近期发布的文章列表中的文章。这一对控制语句就是将近期发布列表 paginator 中的文章loop一遍。</p>
+
+<p>又比如：</p>
+
+<p><strong>{% if post.image.feature %}</strong></p>
+
+<p><strong>{% endif %}</strong></p>
+
+<p>显然构成一个判断语句，意思是如果当前的 post 包含了题图，就加入题图元素：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"entry-image-index"</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">title=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"{{ site.url }}/images/{{ post.image.feature }}"</span> <span class="na">alt=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;&lt;/a&gt;</span>
+<span class="nt">&lt;/div&gt;</span></code></pre></figure>
+
+<h4 id="一些代码效果图">一些代码效果图</h4>
+
+<p><strong>category小标签：</strong></p>
+
+<p>代码：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"entry-meta inline-list"</span><span class="nt">&gt;</span>
+  {% for item in (0..site.categories.size) %}{% unless forloop.last %}
+    {% capture this_word %}{{ cats_list[item] | strip_newlines }}{% endcapture %}
+  	<span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"#{{ this_word }}"</span> <span class="na">class=</span><span class="s">"tag"</span><span class="nt">&gt;&lt;span</span> <span class="na">class=</span><span class="s">"term"</span><span class="nt">&gt;</span>{{ this_word }}<span class="nt">&lt;/span&gt;</span> <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"count"</span><span class="nt">&gt;</span>{{ site.categories[this_word].size }}<span class="nt">&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;</span>
+  {% endunless %}{% endfor %}
+<span class="nt">&lt;/ul&gt;</span></code></pre></figure>
+
+<p><strong>效果如下：</strong>
+<img src="\images\set_template\tags_effect.png" alt="tags_effect" /></p>
+
+<p><strong>category列表</strong></p>
+
+<p>代码：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html">{% for item in (0..site.tags.size) %}{% unless forloop.last %}
+  {% capture this_word %}{{ tags_list[item] | strip_newlines }}{% endcapture %}
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"anchor-bookmark"</span> <span class="na">id=</span><span class="s">"{{ this_word }}"</span><span class="nt">&gt;&lt;/span&gt;</span>
+	<span class="nt">&lt;article&gt;</span>
+	<span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">"tag-heading"</span><span class="nt">&gt;</span>{{ this_word }}<span class="nt">&lt;/h2&gt;</span>
+		<span class="nt">&lt;ul&gt;</span>
+	{% for post in site.tags[this_word] %}{% if post.title != null %}
+	  <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"entry-title"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">title=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;</span>{{ post.title }}<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+	{% endif %}{% endfor %}
+		<span class="nt">&lt;/ul&gt;</span>
+	<span class="nt">&lt;/article&gt;</span><span class="c">&lt;!-- /.hentry --&gt;</span>
+{% endunless %}{% endfor %}</code></pre></figure>
+
+<p><strong>效果如下：</strong>
+<img src="\images\set_template\category_list.png" alt="category_list" /></p>
+
+<p><strong>题图</strong></p>
+
+<p>代码：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html">{% if post.image.feature %}
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"entry-image-index"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">title=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"{{ site.url }}/images/{{ post.image.feature }}"</span> <span class="na">alt=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;&lt;/a&gt;</span>
+      {% if post.image.credit %}<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"image-credit"</span><span class="nt">&gt;</span>Image source: <span class="nt">&lt;a</span> <span class="na">target=</span><span class="s">"_blank"</span> <span class="na">href=</span><span class="s">"{{ post.image.creditlink }}"</span><span class="nt">&gt;</span>{{ post.image.credit }}<span class="nt">&lt;/a&gt;&lt;/div&gt;</span>
+      {% endif %}
+    <span class="nt">&lt;/div&gt;</span><span class="c">&lt;!-- /.entry-image --&gt;</span>
+{% endif %}</code></pre></figure>
+
+<p><strong>效果如下：</strong>
+ <img src="\images\set_template\image_feature.png" alt="image_feature" /></p>
+
+<p><strong>带链接的文章</strong></p>
+
+<p>代码：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html">{% if post.link %}
+      <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"entry-title"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">class=</span><span class="s">"permalink"</span> <span class="na">rel=</span><span class="s">"bookmark"</span> <span class="na">title=</span><span class="s">"{{ post.title }}"</span><span class="nt">&gt;&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-bookmark"</span><span class="nt">&gt;&lt;/i&gt;&lt;/a&gt;</span> <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ post.link }}"</span><span class="nt">&gt;</span>{{ post.title }}<span class="nt">&lt;/a&gt;&lt;/h1&gt;</span>
+{% else %}
+      <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"entry-title"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">rel=</span><span class="s">"bookmark"</span> <span class="na">title=</span><span class="s">"{{ post.title }}"</span> <span class="na">itemprop=</span><span class="s">"url"</span><span class="nt">&gt;</span>{{ post.title }}<span class="nt">&lt;/a&gt;&lt;/h1&gt;</span>
+{% endif %}</code></pre></figure>
+
+<p>同时在文章的MD文件中添加link: http://xxxxxxxx 即可
+<strong>效果如下：</strong></p>
+
+<p><img src="\images\set_template\link_post.png" alt="link_post" /></p>
+
+<p><strong>添加Continue Reading按钮</strong></p>
+
+<p>在MD文件中插入一行<!-- more -->
+这一行后面的部分将隐藏，只有点开按钮后才会显示整篇文章：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"entry-content"</span><span class="nt">&gt;</span>
+   {% if post.content contains "<span class="c">&lt;!-- more --&gt;</span>" %}
+       {{ post.content | split:"<span class="c">&lt;!-- more --&gt;</span>" | first % }}
+       <span class="nt">&lt;div</span> <span class="na">align=</span><span class="s">"center"</span><span class="nt">&gt;</span>
+           <span class="nt">&lt;div</span> <span class="na">markdown=</span><span class="s">"0"</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">"{{ site.url }}{{ post.url }}"</span> <span class="na">class=</span><span class="s">"btn btn-info"</span><span class="nt">&gt;</span>Continue Reading ...<span class="nt">&lt;/a&gt;&lt;/div&gt;</span>
+       <span class="nt">&lt;/div&gt;</span>
+   {% else %}
+     {{ post.content }}
+   {% endif %}
+<span class="nt">&lt;/div&gt;</span><span class="c">&lt;!-- /.entry-content --&gt;</span></code></pre></figure>
+
+<p><strong>效果如下：</strong></p>
+
+<p><img src="\images\set_template\continue_reading.png" alt="continue_reading" /></p>
+
+<p><strong>在根目录加入新文件夹，里面的index.html会被编译成一个页面</strong></p>
+
+<h3 id="一些css设置位置">一些CSS设置位置</h3>
+
+<p><strong>图片来源的html元素：</strong></p>
+
+<p>Image source link(image credit) in html(Remove the image source in the real case):</p>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="p">{</span><span class="err">%</span> <span class="err">if</span> <span class="err">page.image.credit</span> <span class="err">%</span><span class="p">}</span><span class="o">&lt;</span><span class="nt">div</span> <span class="nt">class</span><span class="o">=</span><span class="s1">"image-credit"</span><span class="o">&gt;</span><span class="nt">Image</span> <span class="nt">source</span><span class="o">:</span> <span class="o">&lt;</span><span class="nt">a</span> <span class="nt">target</span><span class="o">=</span><span class="s1">"_blank"</span> <span class="nt">href</span><span class="o">=</span><span class="s1">"{{ page.image.creditlink }}"</span><span class="o">&gt;</span><span class="p">{</span><span class="err">{</span> <span class="err">page.image.credit</span> <span class="p">}</span><span class="err">}</span><span class="o">&lt;/</span><span class="nt">a</span><span class="o">&gt;&lt;/</span><span class="nt">div</span><span class="o">&gt;&lt;!</span><span class="nt">--</span> <span class="o">/</span><span class="nc">.image-credit</span> <span class="nt">--</span><span class="o">&gt;</span><span class="p">{</span><span class="err">%</span> <span class="err">endif</span> <span class="err">%</span><span class="p">}</span></code></pre></figure>
+
+<p><strong>图片来源的CSS设置：</strong></p>
+
+<p>Image credit’s css setting:</p>
+
+<p>/_sass/_page.css</p>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.image-credit</span> <span class="p">{</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><strong>多说的CSS设置：</strong></p>
+
+<p>/_sass/_page.css</p>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nf">#ds-thread</span> <span class="p">{</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><strong>文章宽度的CSS设置（分中和大两种排版）：</strong></p>
+
+<p>/_sass/_page.css</p>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nf">#post</span><span class="o">,</span>
+<span class="nf">#page</span> <span class="p">{</span>
+	<span class="err">.entry-content</span> <span class="err">{</span>
+		<span class="err">@media</span> <span class="err">#{$large</span><span class="p">}</span> <span class="p">{</span>
+			<span class="nl">max-width</span><span class="p">:</span> <span class="m">1200px</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="err">}</span>
+	<span class="err">}</span></code></pre></figure>
+
+<p><strong>以$开头的变量：</strong></p>
+
+<p>The values starts with $ are defined in:</p>
+
+<p>/_sass/_variables.scss</p>
+
+<p><strong>博客大标题”Wangxin’s Blog”的CSS</strong></p>
+
+<p>仍然是 /_sass/_page.css：</p>
+
+<p>.header-title-wrap</p>
+
+<p>里的</p>
+
+<p>h1{</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>大标题相关CSS样式设置
+</code></pre></div></div>
+
+<p>}</p>
+
+<h3 id="插入数学公式">插入数学公式</h3>
+
+<p>官方教程，使用公式在head.html中插入以下代码段：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span>
+        <span class="na">src=</span><span class="s">"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/script&gt;</span></code></pre></figure>
+
+<p>事实上这是不行的，因为安全问题，浏览器不会load http:// 的链接，所以使用以上代码的结果就是公式无法显示</p>
+
+<p>load的这个js脚本是一个MathJax.js文件，这个文件当然可以先存在本站，然后从本站加载。</p>
+
+<p>除了MathJax.js，这个脚本还会去/extensions/文件夹里找MathMenu.js和MathZoom.js文件。</p>
+
+<p>更容易的办法是在head中插入以下代码，可以绕过安全问题：</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span> <span class="na">async</span>
+  <span class="na">src=</span><span class="s">"//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/script&gt;</span></code></pre></figure>
+
+:ET

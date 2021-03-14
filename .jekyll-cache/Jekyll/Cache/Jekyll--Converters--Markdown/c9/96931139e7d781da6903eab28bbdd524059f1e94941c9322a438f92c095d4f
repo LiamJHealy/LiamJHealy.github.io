@@ -1,0 +1,70 @@
+I")	<p>From the last article, we get the following negative log likelihood function as our optimization target:</p>
+
+\[F(x)=\sum_{ij}{e_{ij}(x)^T\Omega_{ij}e_{ij}(x)}\]
+
+<p>The optimization problem turns to be:</p>
+
+\[x^*=\arg\min_xF(x)\]
+
+<p>This article will explain how can this optimization problem be solved using Gauss-Newton method.</p>
+
+<!-- more -->
+
+<p>If we find \(x_0\) as the initial/rough estimation of \(x\), the next step would be looking for a \(\Delta x^*\) to achieve:</p>
+
+\[\Delta x^* = \arg \min_{\Delta x}F(x_0+\Delta x)\]
+
+<p>\(F(x_0+\Delta x)\) can be expanded to be:</p>
+
+\[F(x_0+\Delta x)=\sum_{ij}{e_{ij}(x_0+\Delta x)}^T\Omega_{ij}e_{ij}(x_0+\Delta x)\]
+
+<p>Apply <strong>first order Taylor approximation</strong> on \(e_{ij}\), we get:</p>
+
+\[e_{ij}(x_0+\Delta x)\approx e_{ij}(x_0)+\frac{d e_{ij}}{dx_{ij}}\Delta x,\]
+
+<p>a <strong>Jacobian matrix</strong> is defined as:</p>
+
+\[J_{ij}=\frac{de_{ij}}{dx_{ij}}\]
+
+<p>Then we get:</p>
+
+\[F(x_0+\Delta x)\approx \sum_{ij}(e_{ij}(x_0)+J_{ij}\Delta x)^T\Omega_{ij}(e_{ij}(x_0)+J_{ij}\Delta x)\]
+
+\[=\sum_{ij}\{e_{ij}(x_0)^T\Omega_{ij}e_{ij}(x_0)+[2e_{ij}(x_0)^T\Omega_{ij}J_{ij}(x_0)]\Delta x+\Delta x^T[J_{ij}(x_0)^T\Omega_{ij}J_{ij}(x_0)]\Delta x\}\]
+
+<p>now we define:</p>
+
+\[c_{ij}(x_0)=e_{ij}(x_0)^T\Omega_{ij}e_{ij}(x_0)\]
+
+\[b_{ij}(x_0)=e_{ij}(x_0)^T\Omega_{ij}J_{ij}(x_0)\]
+
+\[H_{ij}(x_0)=J_{ij}(x_0)^T\Omega_{ij}J_{ij}\]
+
+<p>Then the equation system is simplified to be:</p>
+
+\[F(x_0+\Delta x)\approx\sum_{ij}c_{ij}(x_0)+2b_{ij}(x_0)\Delta x+\Delta x^TH_{ij}(x_0)\Delta x\]
+
+<p>What’s more, <strong>if \(F\) is convex, or at least locally convex in the region close to \(x_0\), \(F(x_0+\Delta x)\) is the minimum if the derivative of \(F(x_0+\Delta x)\) to \(\Delta x\) equals to 0.</strong></p>
+
+\[\frac{dF(x_0+\Delta x)}{d\Delta x}=0,\]
+
+<p>which leads to:</p>
+
+\[\sum_{ij}[2b_{ij}(x_0)+2H_{ij}\Delta x^*]=0,\]
+
+<p>then we can solve \(\Delta x^*\):</p>
+
+\[\sum_{ij}H_{ij}(x_0)\Delta x^*=-\sum_{ij}b_{ij}(x_0)\]
+
+<p>The above equation can be arranged in a sparse matrix in the form of</p>
+
+\[H(x_0)\Delta x^*=-b(x_0)\]
+
+<p>Now \(\Delta x^*\) can be solved by sparse Cholesky factorization. When \(\Delta x^*\) is solved, we can compute:</p>
+
+\[x_1=x_0+\Delta x^*\]
+
+<p>Obviously, the final \(x\) can be solved iteratively:</p>
+
+\[x_n=x_{n-1}+\Delta x^*_{n-1}\]
+:ET

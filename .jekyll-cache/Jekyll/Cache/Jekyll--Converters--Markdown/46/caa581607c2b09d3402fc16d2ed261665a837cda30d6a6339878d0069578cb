@@ -1,0 +1,123 @@
+I"�<h3 id="安装基本软件">安装基本软件</h3>
+
+<ul>
+  <li>
+    <p>首先安装一个能在windows环境下运行的包管理器<a href="https://chocolatey.org/"><strong>Chocolatey</strong></a></p>
+  </li>
+  <li>
+    <p>因为Jekyll是用Ruby写的，所以要安装Ruby，在控制台中输入<strong>choco install ruby -y</strong>回车</p>
+  </li>
+  <li>
+    <p>关闭控制台，然后再打开控制台并输入<strong>gem install jekyll</strong>，这样Jekyll就装好了：如果出现ssl3错误按照<a href="https://gist.github.com/luislavena/f064211759ee0f806c88">以下步骤（点我看原文）</a>解决：</p>
+
+    <p>在 https://rubygems.org/pages/download 下载最新版的rubygem</p>
+
+    <p>cmd输入 <strong>gem install –local C:\rubygems-update-x.x.xx.gem</strong>：local后面即刚下载好的gem文件</p>
+
+    <p>然后输入<strong>update_rubygems –no-ri –no-rdoc</strong></p>
+
+    <p>结束后再输入<strong>gem install jekyll</strong>，应该就可以了</p>
+  </li>
+  <li>
+    <p>重新打开控制台，输入<strong>chcp 65001</strong>避免编码问题</p>
+  </li>
+  <li>
+    <p>安装Ruby开发环境，在控制台中输入：</p>
+
+    <p><strong>choco install ruby2.devkit</strong></p>
+  </li>
+  <li>
+    <p>在<strong>C:\tools\DevKit2</strong>文件夹中打开控制台，执行命令 <strong>ruby dk.rb init</strong>，产生config.yml文件</p>
+  </li>
+</ul>
+
+<!-- more -->
+
+<p>以下内容参照<a href="http://jekyllrb.com/docs/windows/#installation">jekyll官网安装说明</a></p>
+
+<ul>
+  <li>
+    <p>编辑config.yml文件，并在最后加入</p>
+
+    <p>-  <strong>C:/tools/ruby23</strong></p>
+  </li>
+  <li>
+    <p>然后执行<strong>ruby dk.rb install</strong></p>
+  </li>
+  <li>
+    <p>安装Nokogiri gem，在控制台中依次执行以下命令：</p>
+
+    <p><strong>cinst -Source “https://go.microsoft.com/fwlink/?LinkID=230477” libxml2</strong> 回车</p>
+
+    <p><strong>cinst -Source “https://go.microsoft.com/fwlink/?LinkID=230477” libxslt</strong> 回车</p>
+
+    <p><strong>cinst -Source “https://go.microsoft.com/fwlink/?LinkID=230477” libiconv</strong> 回车</p>
+
+    <p>输入以下一大段命令</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">gem</span><span style="color: #586e75"> </span><span style="color: #586e75">install</span><span style="color: #586e75"> </span><span style="color: #586e75">nokogiri</span><span style="color: #586e75"> </span><span style="color: #93a1a1">--</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-xml2-include</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libxml2.2.7.8.7\build\native\include</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-xml2-lib</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libxml2.redist.2.7.8.7\build\native\bin\v110\x64\Release\dynamic\cdecl</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-iconv-include</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libiconv.1.14.0.11\build\native\include</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-iconv-lib</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libiconv.redist.1.14.0.11\build\native\bin\v110\x64\Release\dynamic\cdecl</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-xslt-include</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libxslt.1.1.28.0\build\native\include</span><span style="color: #002b36;background-color: #dc322f">^</span><span style="color: #586e75">
+   </span><span style="color: #b58900">--with-xslt-lib</span><span style="color: #93a1a1">=</span><span style="color: #586e75">C:\Chocolatey\lib\libxslt.redist.1.1.28.0\build\native\bin\v110\x64\Release\dynamic</span><span style="color: #586e75">
+</span></code></pre></div>    </div>
+
+    <p>回车</p>
+  </li>
+</ul>
+
+<h3 id="新建github页面并安装jekyll模板">新建Github页面并安装Jekyll模板</h3>
+
+<ul>
+  <li>
+    <p>我的模板来自<a href="https://github.com/mmistakes/hpstr-jekyll-theme"><strong>HPSTR</strong></a>，从这里把模板fork到自己的Github</p>
+  </li>
+  <li>
+    <p>也可以自己找喜欢的模板，在<a href="http://jekyllthemes.org/">Jekyll模板库</a></p>
+  </li>
+  <li>
+    <p>建立自己的Github主页，在自己的Github中建立一个新的depository，命名为username.github.io，<strong>这里的username必须是自己的github用户名</strong>，比如我的用户名是einsteinliu，就必须新建一个叫einsteinliu.github.io的Depository。</p>
+  </li>
+  <li>
+    <p>将新建的github页面的Depository克隆到本地文件夹，比如D:\Blog：</p>
+
+    <p><strong>git clone https://github.com/<em>username</em>/<em>username</em>.github.io</strong></p>
+
+    <p>然后会出现D:\Blog\username.github.io这个文件夹，这就是本地Depository</p>
+  </li>
+  <li>
+    <p>将之前Fork到的<a href="https://github.com/mmistakes/hpstr-jekyll-theme"><strong>HPSTR</strong></a>模板下载下来，复制到github页面的本地文件夹D:\Blog\username.github.io</p>
+  </li>
+  <li>
+    <p>在这个文件夹中打开控制台，依次执行以下命令：</p>
+
+    <p><strong>git add –all回车</strong></p>
+
+    <p><strong>git commit -m “init”回车</strong></p>
+
+    <p><strong>git push -u origin master回车</strong></p>
+
+    <p><strong>输入Github的用户名密码回车，等待代码上传完成</strong></p>
+  </li>
+  <li>
+    <p>从浏览器访问einsteinliu.github.io，新页面应该就可以访问了</p>
+  </li>
+</ul>
+
+<p>以后每次改动页面后，在页面代码所在文件夹中执行</p>
+
+<p><strong>bundle exec jekyll serve</strong></p>
+
+<p>页面就会重新编译</p>
+
+<p>​</p>
+
+<p>​</p>
+
+<p>​</p>
+
+<p>​</p>
+
+:ET

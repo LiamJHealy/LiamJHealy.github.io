@@ -1,0 +1,190 @@
+I"B'<p>The LSVM (SVM with latent variable) is mostly used for human figure detection, it is very efficiency because it puts the human figure’s structure into consideration: a human figure has hands, head and legs. The LSVM models the human figure structure with 6 parts, and the position of these 6 parts are latent value.</p>
+
+<p><strong>The basic logic is sliding a window on the image, for every position we get a small image patch, by scoring this image patch we can predict whether this image patch contains a human figure or not.</strong></p>
+
+<h3 id="defining-the-score-function"><strong>Defining the score function</strong></h3>
+
+<p>Anyway, the first thing to do: defining a score function:</p>
+
+<!-- more -->
+
+<p>Assumptions: <strong>we already trained the model</strong> and now we are using this model to find the image patch which contains a human figure by computing the score.</p>
+
+<p>Just as a normal sliding window method, we search the whole image pyramid, so the position \(p\) of a image patch will be defined by x, y and l. l short for “level” represents the level in a image pyramid.</p>
+
+<p>We are evaluating a image patch, instead of directly using its pixel values, we will use the feature vector computed from this image patch, \(\Phi(H,p,w,h)\) is the feature vector extracted from the image I.</p>
+
+<p>\(H\) is short for HoG feature, as we are using <a href="https://einsteinliu.github.io/computer%20vision/HoG/">HoG feature</a> , more precisely, \(H\) is the pyramid of HoG features computed from I.</p>
+
+<p>p is the position of the upper left corner of the current image patch</p>
+
+<p>w and h are the width and height of the image patch.</p>
+
+<p>\(F\) will be the weights vector, in this paper it is called filter, because it is represented by a weighted window filter which only has none-zero weights at the position of image patch.</p>
+
+<p>Finally we get the score by computing the dot product of \(F\) and \(\Phi\):</p>
+
+<p><img src="\images\computer_vision\lsvm\score_filter.png" alt="score_filter" /></p>
+
+<p>Remember that we consider a human figure to be a structured model with 6 separate parts, let’s visualize it in the following image:</p>
+
+<p><img src="\images\computer_vision\lsvm\structure.png" alt="structure" /></p>
+
+<p>Our model has a <strong>root filter</strong> highlighted as cyan rectangle, this root filter is used to find the whole human figure as a rough prediction. It will be computed in the feature pyramid’s high level to locate the human.</p>
+
+<p>Apart from the root filter, we have the other <strong>6 part filters</strong> highlighted as yellow rectangles in the above image. These filters will be positioned with some flexibility relative to the root filter, each filter of cause provide their own scores, the following diagram shows how are all these scores combined together to form a final score:</p>
+
+<p><strong>\(F_0\) is the root filter, \(P_1 . . . P_n\) are the part filters and \(b\) is the bias.</strong></p>
+
+<p>For one part filter \(P_i\):</p>
+
+<p>​	<strong>\(F_i\) is its filter</strong></p>
+
+<p>​	\(v_i\) is the anchor of the filter, the <strong>position of where it should be:</strong></p>
+
+<p>​		- it is learned from the learning process.</p>
+
+<p>​	<strong>\(d_i\) is the parameters used to compute the penalty of the ith part:</strong></p>
+
+<p>​		- The part filter should not be too far away from where it should be</p>
+
+<p>​	        - The final score will be penalized by the position of the ith filter:</p>
+
+<p><img src="\images\computer_vision\lsvm\score.jpg" alt="score" /></p>
+
+<p><strong>So the score of a complete model is a summation of:</strong></p>
+
+<p><strong>the scores of the root and part filters and</strong></p>
+
+<p><strong>the penalty of the part filters’ position.</strong></p>
+
+<h3 id="matching"><strong>Matching</strong></h3>
+
+<p>Now we have the function to score a hypothesis image patch, as we can see,  there are some variables which are unclear:</p>
+
+<p><strong>How can we find the location of the root filter?</strong></p>
+
+<p>That’s easy, we are simply sliding the foot filter in the whole image pyramid, defining its position <strong>only by computing the root filter’s score</strong></p>
+
+<p><strong>How can we find the location of the part filters?</strong></p>
+
+<p>Once we find the location of the root filter, we can say it is very possible that there is a human figure in the image patch covered by the filter.</p>
+
+<p>Then we can further position the part filters and compute the final score to evaluate if this image patch is really a human figure.</p>
+
+<p>Positioning the part filters allows some flexibility, that’s why it’s called “latent”:</p>
+
+<p>again, the ith part filter at position \(x,y,l\):</p>
+
+\[R_{i,l}(x,y)=F_i\cdot\phi(H,(x,y,l))\]
+
+<p>The latent part: position of the ith filter is latent, move it around to find  the best position:</p>
+
+\[D_{i,l}(x,y)=max_{dx,dy}(R_{i,l}(x+dx,y=dy)-d_i\cdot\phi_d(dx,dy))\]
+
+<p>so adding the score of the root filter, we get the final score:</p>
+
+\[\displaystyle R_{0,l_0}(x_0.y_0)+\sum_{i=1}^nD_{i,l_0-\lambda}(2(x_0,y_0)+v_i)+b\]
+
+<p>So the matching process can be described as:</p>
+
+<ol>
+  <li>
+    <p>sliding the root filter to find the root position</p>
+  </li>
+  <li>
+    <p>sliding the 1st part filter around its anchor position(learned in the training) relative to the root position until this part filter gets the max score, fix it.</p>
+  </li>
+  <li>
+    <p>sliding the 2nd, 3rd …. until all part filters are fixed</p>
+  </li>
+  <li>
+    <p>sum all the scores of root and part filters and the penalty part</p>
+  </li>
+</ol>
+
+<p>When we find a postion with a score bigger than the threshold, we can say we find a human figure image patch.</p>
+
+<p><strong>One more thing to add: making the position of the root filter latent can help to improve the result.</strong></p>
+
+<h3 id="training"><strong>Training</strong></h3>
+
+<p><strong>The left part:</strong></p>
+
+<p>The left part of the diagram shows a normal SVM problem using the Hinge Loss function to achieve the optimization goal \(L_D(\beta)\).</p>
+
+<p>We have a training image set with a series of images \(x\) labeled with their class \(y\), in this case, if the image \(x\) is human figure, we label it as 1, if it doesn’t contain a human figure, it will be labelled -1.</p>
+
+<p>\(D\) is short for “data set”, which contains all the sample images.</p>
+
+<p>\(\beta\) is the model parameter vector which is our training target, the weights.</p>
+
+<p>\(\phi\) is the feature vector</p>
+
+<p>\(z\) are the latent values to locate the part filters</p>
+
+<p>Just as the normal gradient descent algorithm, we differentiate \(L_D(\beta)\) according to \(\beta\) , with the step length \(\alpha_t\) , \(t\) is the current iteration.</p>
+
+<p><img src="\images\computer_vision\lsvm\traning.png" alt="traning" /></p>
+
+<p><strong>The right part:</strong></p>
+
+<p>The right part of the diagram shows how the learning process is done.</p>
+
+<p>The learning process has 2 steps:</p>
+
+<p>In the 1st step, we <strong>fix \(\beta\)</strong> and search in the whole image to <strong>locate the part filters’ positions (find the latent variables)</strong>. As we are now learning, so we know that this image contains a human figure, then we don’t need to care about the root filter, or we can say, the root filter’s position is (0,0).</p>
+
+<p>In the 2nd step, we <strong>fix the latent variables</strong> and update \(\beta\) .</p>
+
+<h3 id="training-in-practice"><strong>Training in practice</strong></h3>
+
+<p><img src="\images\computer_vision\lsvm\traning_practice.png" alt="traning_practice" /></p>
+
+<h3 id="initialization--"><strong>Initialization</strong>:  <img src="\images\computer_vision\lsvm\initialization.png" alt="initialization" /></h3>
+
+<h3 id="appendix"><strong>Appendix:</strong></h3>
+
+<p>How to solve the optimization problem?</p>
+
+<p>For an input pair \({x_i,y_i}\)，we get a prediction from ω：\(f_ω (x_i)\)</p>
+
+<p>Using the normal hinge loss function as the loss function, we get the following optimization problem:</p>
+
+\[\displaystyle argmin_ω{\left\{  \frac{1}{2}|ω|^2 +C\sum_{i=1}^Nmax(0,1-y_i\cdot f_\omega(x_i))  \right\} }\]
+
+<p>as a normal SVM problem, it’s easy  to solve.</p>
+
+<p>But in this case, we introduce the latent value h，\(f_ω (x_i)\) is no longer a easy linear  function like \(ω\cdot x_i+b\).</p>
+
+<p>It is now：</p>
+
+\[f_ω (x_i )=\max_{h\inΗ}⁡ω\cdotΦ(x_i,h)\]
+
+<p>Which means，prediction turns to be a discrete non-linear function related to latent value, which cause the above problem difficult to solve.</p>
+
+<p>But you will find out that \(h\) and \(\omega\) are independent to each other, so we can treat them as two independent variables, then we can use coordinate descent algorithm to solve this optimization problem.</p>
+
+<p><strong>The first step, fix</strong> \(\omega\), <strong>update</strong>  \(h_i:h_1\cdots h_N\)</p>
+
+<p>Which means, assuming that we know \(\omega\) already, we compute a \(h_i\) using:</p>
+
+\[f_ω (x_i )=\max_{h\inΗ}⁡ω\cdotΦ(x_i,h)\]
+
+<p>now we fix \(h_i\), \(f_ω (x_i)\) then turns to be a normal convex linear function to \(\omega\).</p>
+
+<p><strong>The second step, fix</strong> \(h_i:h_1\cdots h_N\)<strong>, update</strong> \(\omega\):</p>
+
+<p>So for each \(i\), after we computed the \(h_i\) based on the already existed \(\omega\),  \(\max⁡(0,1−y_if_ω (x_i))\) turns to be a convex function.</p>
+
+<p>And we know that <strong>the summation of convex functions will be still convex.</strong></p>
+
+<p>So we can find the sum of all \(max⁡(0,1−y_if_ω (x_i))\) for \(i=1\cdots N\), the summation will be still convex.</p>
+
+<p>Original Paper :</p>
+
+<p><a href="ftp://elderlab.yorku.ca/pub/qizhi/literature/a%20discriminatively%20trained%20multiscale%20deformable%20part%20model.pdf">A Discriminatively Trained, Multiscale, Deformable Part Model</a></p>
+
+<p><a href="http://cs.brown.edu/~pff/papers/lsvm-pami.pdf">Object Detection with Discriminatively Trained Part Based Model </a></p>
+
+:ET

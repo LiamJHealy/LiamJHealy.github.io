@@ -1,0 +1,116 @@
+I"�<h3 id="centering-and-scaling"><center>Centering and Scaling</center></h3>
+
+<p><img src="\images\machine_learning\NN_Pre.png" alt="NN_Pre" /></p>
+
+<!-- more -->
+
+<p>Some preprocessing is needed before the training.</p>
+
+<h4 id="image-stretch"><strong><center>Image Stretch</center></strong></h4>
+
+<p>If we are dealing with images and the image patches in the data set have different sizes, then the data can not be aligned. So we need to firstly stretch all the image patches to the same size.</p>
+
+<h4 id="image-vectorization"><strong><center>Image Vectorization</center></strong></h4>
+
+<p>One image in the dataset will be vectorized to one vector as a row. Considering a gray image with the size of <strong>WxH</strong>, its corresponding row vector’s size will be <strong>D=W*H</strong>.</p>
+
+<p>We collect these rows in one big matrix, for a <strong>N</strong> images data set, we get a <strong>NxD</strong> matrix which contains all information of the whole data set. We call it <strong>X</strong>.</p>
+
+<h4 id="data-centering"><strong><center>Data Centering</center></strong></h4>
+
+<p>Each data row of the data matrix <strong>X</strong> should be centered, <strong>we compute the mean value for each data row and subtract the mean value pixel by pixel from this data row.</strong> Each data row will be centered independently, after the centering process, the mean value of each data row will be 0.</p>
+
+<p>Taking a 2D data set as an example, the centering process can be visualized as:</p>
+
+<p><img src="\images\machine_learning\original_data.png" alt="original_data" /></p>
+
+<p><strong>It is also common to compute the means of all data and get one single mean value. This mean value will then be subtracted from all pixels/data elements.</strong></p>
+
+<h4 id="data-normalization"><strong><center>Data Normalization</center></strong></h4>
+
+<p>The data will then be normalized, the process can be visualized as:</p>
+
+<p><img src="\images\machine_learning\data_normalization.png" alt="data_normalization" /></p>
+
+<p>Now we can see that centering data is actually a preparation for normalization, decentered data can not be normalized. There are 2 ways to normalize the data:</p>
+
+<p>1, <strong>Compute the standard deviation of each data row and divide each pixel by the STD of its data row.</strong></p>
+
+<p><strong>2, Scale each data row to [-1,1]</strong></p>
+
+<h4 id="data-decorrelation"><strong><center>Data Decorrelation</center></strong></h4>
+
+<p>Before normalization, decorrelation is required, it can be visualized as:</p>
+
+<p><img src="\images\machine_learning\decorrelated_data.png" alt="decorrelated_data" /></p>
+
+<p>This process is achieved by PCA:</p>
+
+<p>We firstly compute the covariance matrix of <strong>X ( Normalize( Center(X) )  )</strong>:</p>
+
+<p><img src="\images\machine_learning\cov.png" alt="cov" /></p>
+
+<p>COV is the computed covariance matrix, we do SVD on COV and get U,S,V:</p>
+
+\[[U,S,V]=svd(COV)\]
+
+<p><strong>The columns of U are eigen vectors and the diagonal values of S are singular values. Eigen vectors are orthonormal with the length of D, they can be considered as bases.</strong></p>
+
+<p>Actually, we can also do SVD directly on <strong>X</strong>:</p>
+
+\[[u,s,v]=svd(X)\]
+
+<p><strong>Comparing \(U,S,V\) and \(u,s,v\):</strong></p>
+
+<p>\(v\)  <strong>is exactly the same as</strong>  \(U\).</p>
+
+<p>\(u\)  <strong>is exactly the same as</strong>  \(V\).</p>
+
+<p>The eigen vectors are visualized as red vectors in the above diagram.</p>
+
+<p>We can “project” the data point on to the eigen vectors:</p>
+
+\[RotX=Decorrelated(X)=X\cdot U=X\cdot v\]
+
+<p>The projection is visualized as the 2 projection arrows perpendicular to each other. <strong>After the projection, the decorrelated data’s eigen vectors will be aligned with x and y axis.</strong></p>
+
+<h4 id="dimensionality-reduction"><strong><center>Dimensionality Reduction</center></strong></h4>
+
+<p><strong>The eigen vectors in \(U\) are already sorted by the singular values in \(S\), the bigger is the singular value, the more important is the corresponding eigen vector in \(U\)：</strong></p>
+
+<p><img src="\images\machine_learning\covsvd.png" alt="svd" /></p>
+
+<p>In the above diagram, the singular values are already sorted from big to small:</p>
+
+\[s_1&gt;s_2&gt;\cdots &gt;s_N\]
+
+<p>So we can ignore the less important eigen vectors. <strong>Let’s say the first \(D_s\) singular values are big enough to be kept. So we use only the first \(D_s\) columns of \(U\) to project the original data:</strong></p>
+
+<p><img src="\images\machine_learning\reducedim.png" alt="covsvd" /></p>
+
+<p>Normally, when decorrelatting the \(X\), we use the whole \(U\) matrix(the \(v\)) to project:</p>
+
+\[RotX=Decorrelated(X)=X\cdot U=X\cdot v\]
+
+<p>Now we throw the less important directions(eigenbases) away, the data will then be projected to the first \(D_s\) directions:</p>
+
+\[RedRotX=Reduced\_Decorrelated(X)=X\cdot U_s=X\cdot v_s\]
+
+<p>The size of \(RotX\) is originally \(N\)x\(D\), after applying the dimension reduction method, the size of \(RedRotX\) is now reduced to \(N\)x\(D_s\).</p>
+
+<h4 id="whitening"><strong><center>Whitening</center></strong></h4>
+
+<p>After decentering, decorrelation and dimension reduction, the last process will be normalization. Instead of using the data rows’ standard deviation or scaling to [-1,1], <strong>we divide every dimension(eigenbasis) by \(\sqrt{s_i}\)(square roots of the corresponding singular values in \(S\) ) to normalize the scale.</strong>This process is called whitening.</p>
+
+<p>Combining all preprocessing steps:</p>
+
+<p><img src="\images\machine_learning\all.png" alt="all" /></p>
+
+<h4 id="in-practice"><strong><center>In Practice</center></strong></h4>
+
+<p>In CNN, CPA and Whitening is not needed, only centering and normalization.</p>
+
+<p>In ANN, we use CPA and Whitening.</p>
+
+<p><strong>When using single mean value or single normalization ratio, the single value will only be computed from the training data. This mean will be kept and subtracted from all the other vali/test data sets. Never compute new mean value from vali/test again!</strong></p>
+:ET

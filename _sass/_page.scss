@@ -6,6 +6,23 @@ body {
 	overflow-x: hidden;
 }
 
+#ds-thread {
+	// margin: 40px 2px 20px 2px;
+		padding: 10px 15px;
+		background-color: $white;
+		@include rounded(3px);
+		@media #{$medium} {
+			margin-left: 10px;
+			margin-right: 10px;
+			padding: 20px 30px;
+		}
+		@media #{$large} {
+			max-width: 1000px;
+			padding: 50px 80px;
+			margin: 0 auto 30px auto;
+		}
+}
+
 // Main
 // --------------------------------------------------
 .entry,
@@ -19,7 +36,7 @@ body {
 	background-color: $header-color;
 }
 .entry-content {
-	@include font-size(16);
+	@include font-size(18);
 	// Dotted line underlines for links
 	p > a,
 	li > a {
@@ -69,10 +86,10 @@ body {
 	right: 0;
 	margin: 0 auto;
 	max-width: 440px;
-	padding: 10px 15px;
-	background-color: rgba($base-color,0.5);
+	padding: 8px 8px;
+	background-color: rgba($base-color,0.1);
 	color: $white;
-	@include font-rem(12);
+	@include font-rem(8);
 	text-align: right;
 	@include border-radius(3px,0,0,3px);
 	z-index: 10;
@@ -83,16 +100,87 @@ body {
 		max-width: 960px;
 	}
 	a {
-		color: $white;
+		color: $gray;
 		text-decoration: none;
 	}
 }
 
 // Single Post and Page
 // --------------------------------------------------
+.tag-meta {
+	@include font-rem(16);
+	//text-transform: uppercase;
+	color: lighten($base-color,60);
+	a {
+		color: lighten($base-color,60);
+	}
+	.vcard {
+		&:before {
+			content: " by ";
+		}
+	}
+	.tag {
+		display: inline-block;
+		margin: 4px;
+		color: $white;
+		@include rounded(3px);
+		background-color: lighten($base-color,50);
+		span {
+			float: left;
+			padding: 2px 6px;
+		}
+		.count {
+			background-color: lighten($base-color,40);
+			@include border-radius(3px,3px,0,0);
+		}
+		&:hover {
+			background-color: lighten($base-color,40);
+		}
+	}
+	.entry-reading-time {
+		float: right;
+	}
+}
+
+.list-meta {
+	@include font-rem(16);
+	//text-transform: uppercase;
+	color: lighten($base-color,60);
+	a {
+		color: lighten($base-color,60);
+	}
+	.vcard {
+		&:before {
+			content: " by ";
+		}
+	}
+	.tag {
+		display: inline-block;
+		margin: 2px;
+		font-weight: 500;
+		color: $white;
+		@include rounded(3px);
+		background-color: #4da8da;
+		span {
+			float: left;
+			padding: 2px 6px;
+		}
+		.count {
+			background-color: lighten($base-color,40);
+			@include border-radius(3px,3px,0,0);
+		}
+		//&:hover {
+			//background-color: lighten($base-color,40);
+		//}
+	}
+	.entry-reading-time {
+		float: right;
+	}
+}
+
 .entry-meta {
 	@include font-rem(12);
-	text-transform: uppercase;
+	//text-transform: uppercase;
 	color: lighten($base-color,60);
 	a {
 		color: lighten($base-color,60);
@@ -142,12 +230,13 @@ header .entry-meta {
 		box-shadow: 0 0 0 0, 0 6px 12px rgba($black,0.1);
 		@include rounded(3px);
 		@media #{$medium} {
+			max-width: 600px;
 			margin-left: 10px;
 			margin-right: 10px;
 			padding: 20px 30px;
 		}
 		@media #{$large} {
-			max-width: 800px;
+			max-width: 1000px;
 			margin: 50px auto 30px auto;
 			padding: 50px 80px;
 			> p:first-child {
@@ -167,7 +256,7 @@ header .entry-meta {
 			padding: 20px 30px;
 		}
 		@media #{$large} {
-			max-width: 800px;
+			max-width: 1000px;
 			padding: 50px 80px;
 			margin: 0 auto 30px auto;
 		}
@@ -227,7 +316,7 @@ header .entry-meta {
 		padding: 50px 40px 25px;
 	}
 	@media #{$large} {
-		max-width: 800px;
+		max-width: 900px;
 		padding: 50px 80px;
 		margin: 60px auto;
 	}
@@ -352,7 +441,7 @@ ul.social-buttons li a:active {
 			margin-right: 20px;
 		}
 		@media #{$large} {
-			max-width: 800px;
+			max-width: 1000px;
 			margin-top: 50px;
 			margin-left: auto;
 			margin-right: auto;
@@ -503,7 +592,7 @@ ul.social-buttons li a:active {
 		margin-bottom: 20px;
 		@include font-rem(32);
 		color: $white;
-		text-shadow: 1px 1px 4px rgba($base-color, 0.6);
+		text-shadow: 2px 2px 8px rgba($base-color, 0.8);
 		display: block;
 		a {
 			color: $white;
@@ -538,7 +627,7 @@ ul.social-buttons li a:active {
 		height: 100%;
 		padding: 0;
 		@media #{$large} {
-			max-width: 900px;
+			max-width: 1000px;
 		}
 	}
 }
@@ -638,6 +727,8 @@ ul.social-buttons li a:active {
 	width: 100%;
 	border-bottom: 1px solid gray;
 	border-left: 1px solid;
+	border-right: 1px solid;
+	border-top: 1px solid;	
 	height: 50px;
 	text-decoration: none;
 }
@@ -650,6 +741,8 @@ ul.social-buttons li a:active {
 .sub-item:hover {
 	border-bottom-color: $header-margin;
 	border-left-color: $header-margin;
+	border-right-color: $header-margin;
+	border-top-color: $header-margin;
 }
 
 .button-twitter {

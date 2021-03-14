@@ -1,0 +1,67 @@
+I"’<p><img src="\images\machine_learning\nn.png" alt="nn" /></p>
+
+<!-- more -->
+
+<p>Input: The input feature vector, if we are dealing with image patches, it will be long</p>
+
+<p>Layers: One layer is constructed by many neurons, a neuron is a combination of a linear classifier and a activation function:</p>
+
+<center>$$f(x) = Act(\omega\cdot x+b)$$</center>
+
+<p>\(x\) is a 3071x1 vector,  \(\omega\) of one neuron is a 1x3071 weights vector, \(b\) is a real value.</p>
+
+<p>So one neuron in the 1st layer outputs one single value(marked by one color), this value will be copied to all the neurons of the 2nd layer.</p>
+
+<p><strong>The 1st layer, consist of 5 neurons, will output a 5x1 vector to the 2nd layer.</strong></p>
+
+<p><strong>Then all the neurons in the 2nd layer will receive the same 5x1 vector from the the 1st layer as their inputs.</strong></p>
+
+<p>We can see that the original input, a 3071x1 vector is now compressed to a 5x1 vector by the 1st layer.</p>
+
+<p><strong>Or we can describe it more accurately: each neuron of the 1st layer extracts some key information from the 3071x1 input vector, all 5 neurons extracted 5 different kinds of information and store them in a vector.</strong></p>
+
+<p>The 2nd layer will further extract 4 kinds of information out of the 5x1 information vector from the 1st layer and output a 4x1 vector to the 3rd layer, the 3rd layer will output 1 value as the final result.</p>
+
+<h3 id="mathematically"><strong><center>Mathematically</center></strong></h3>
+
+<p>We can represent each layer as one weights matrix:</p>
+
+<p>input \(x\): 3071x1</p>
+
+<p>1st layer \(W_1\) : 5x3071, \(b_1\) : 5x1</p>
+
+<p>2nd layer \(W_2\) : 4x5, \(b_2\) : 4x1</p>
+
+<p>3d layer \(W_3\) : 1x4, \(b_3\) : 1x1</p>
+
+<p>The equation after the 1st layer will be:</p>
+
+\[F(x)=Act(W_1\cdot x+b_1)\]
+
+<p>after the 2nd layer:</p>
+
+\[F(x)=Act(W_2\cdot Act(W_1\cdot x+b_1)+b_2)\]
+
+<p>after the 3rd layer:</p>
+
+\[F(x)=Act(W_3\cdot Act(W_2\cdot Act(W_1\cdot x+b_1)+b_2)+b_3)\]
+
+<p><strong>The above equation describes the whole NN</strong></p>
+
+<h3 id="practically"><strong><center>Practically</center></strong></h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">f</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">lambda</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">:</span> <span style="color: #859900">1.0</span><span style="color: #93a1a1">/</span><span style="color: #93a1a1">(</span><span style="color: #859900">1.0</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">exp</span><span style="color: #93a1a1">(</span><span style="color: #93a1a1">-</span><span style="color: #586e75">x</span><span style="color: #93a1a1">))</span> <span style="color: #657b83"># activation function (sigmoid)
+</span><span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">random</span><span style="color: #93a1a1">.</span><span style="color: #586e75">randn</span><span style="color: #93a1a1">(</span><span style="color: #859900">3071</span><span style="color: #93a1a1">,</span> <span style="color: #859900">1</span><span style="color: #93a1a1">)</span> <span style="color: #657b83"># random input vector(3071x1)
+</span><span style="color: #586e75">h1</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W1</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">b1</span><span style="color: #93a1a1">)</span> <span style="color: #657b83"># calculate first hidden layer activations (5x1)
+</span><span style="color: #586e75">h2</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W2</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">h1</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">b2</span><span style="color: #93a1a1">)</span> <span style="color: #657b83"># calculate second hidden layer activations (4x1)
+</span><span style="color: #586e75">out</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W3</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">h2</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">b3</span> <span style="color: #657b83"># output neuron (1x1)
+</span></code></pre></div></div>
+
+<p>Or we can put all together:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">f</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">lambda</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">:</span> <span style="color: #859900">1.0</span><span style="color: #93a1a1">/</span><span style="color: #93a1a1">(</span><span style="color: #859900">1.0</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">exp</span><span style="color: #93a1a1">(</span><span style="color: #93a1a1">-</span><span style="color: #586e75">x</span><span style="color: #93a1a1">))</span> <span style="color: #657b83"># activation function (sigmoid)
+</span><span style="color: #586e75">x</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">random</span><span style="color: #93a1a1">.</span><span style="color: #586e75">randn</span><span style="color: #93a1a1">(</span><span style="color: #859900">3071</span><span style="color: #93a1a1">,</span> <span style="color: #859900">1</span><span style="color: #93a1a1">)</span> <span style="color: #657b83"># random input vector(3071x1)
+</span><span style="color: #586e75">out</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W3</span><span style="color: #93a1a1">,</span><span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W2</span><span style="color: #93a1a1">,</span><span style="color: #586e75">f</span><span style="color: #93a1a1">(</span><span style="color: #586e75">np</span><span style="color: #93a1a1">.</span><span style="color: #586e75">dot</span><span style="color: #93a1a1">(</span><span style="color: #586e75">W1</span><span style="color: #93a1a1">,</span> <span style="color: #586e75">x</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">b1</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">)</span> <span style="color: #93a1a1">+</span> <span style="color: #586e75">b2</span><span style="color: #93a1a1">)</span> <span style="color: #93a1a1">)</span><span style="color: #93a1a1">+</span><span style="color: #586e75">b3</span>
+</code></pre></div></div>
+
+:ET

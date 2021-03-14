@@ -1,0 +1,178 @@
+I"�V<h3 id="databinding-and-mvvm-pattern">DataBinding and MVVM Pattern</h3>
+
+<p>When dealing with GUI, usually we will use the MVC pattern, which means we manage a set of data as <strong>Model</strong>, the model will be demonstrated as <strong>View</strong> and the <strong>Contoller</strong> controls the logic of showing the data:</p>
+
+<p><img src="\images\csharp\mvc_role_diagram.png" alt="mvc_role_diagram" /></p>
+
+<p>The main problem of this pattern is that most of the controller’s works are simple “get” and “set” functions between the data and the gui Like:</p>
+
+<!-- more -->
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #657b83">//Copy data to gui</span>
+<span style="color: #6c71c4">for</span><span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span><span style="color: #93a1a1">=</span><span style="color: #859900">0</span><span style="color: #93a1a1">;</span><span style="color: #586e75">i</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">dataList</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Count</span><span style="color: #93a1a1">;</span><span style="color: #586e75">i</span><span style="color: #93a1a1">++)</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">listbox1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Items</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Add</span><span style="color: #93a1a1">(</span><span style="color: #586e75">dataList</span><span style="color: #93a1a1">[</span><span style="color: #586e75">i</span><span style="color: #93a1a1">]);</span>
+<span style="color: #93a1a1">}</span>
+<span style="color: #657b83">//Copy gui to data</span>
+<span style="color: #6c71c4">for</span><span style="color: #93a1a1">(</span><span style="color: #cb4b16">int</span> <span style="color: #586e75">i</span><span style="color: #93a1a1">=</span><span style="color: #859900">0</span><span style="color: #93a1a1">;</span><span style="color: #586e75">i</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">listbox1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Count</span><span style="color: #93a1a1">;</span><span style="color: #586e75">i</span><span style="color: #93a1a1">++)</span>
+<span style="color: #93a1a1">{</span>
+	<span style="color: #586e75">dataList</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Add</span><span style="color: #93a1a1">(</span><span style="color: #586e75">listbox1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Items</span><span style="color: #93a1a1">[</span><span style="color: #586e75">i</span><span style="color: #93a1a1">].</span><span style="color: #586e75">ToString</span><span style="color: #93a1a1">());</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>This is not very elegant.</p>
+
+<p>In WPF, we use MVVM (Model–view–viewmodel) pattern, it put the <strong>Model</strong> and <strong>View</strong> in MVC pattern much closer with the help of the data binding technique:</p>
+
+<p><img src="\images\csharp\MVVMPattern.png" alt="MVVMPattern" /></p>
+
+<p>The logic is simple: the <strong>View</strong> and the <strong>ViewModel</strong> have the same structure and they are binded together, so when I changed the ViewModel, the View will automatically present the ViewModel. Then all the “set” and “get” works are no longer needed once the View and ViewModel are binded.</p>
+
+<h3 id="databinding-implementation-details">DataBinding Implementation Details</h3>
+
+<h4 id="defining-the-datacontext"><center>Defining the DataContext</center></h4>
+
+<p>Data binding works in a <strong>DataContext</strong>, before everything is started, we must define the DataContext. <strong>DataContext must be an object, this object is the “ViewModel” of our GUI and all the data bindings will be done on this object.</strong> If the data we use are not all combined into one class but exist as our MainWindow’s properties, we set the DataContext to be the MainWindow itself:</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">public</span> <span style="color: #586e75">MainWindow</span><span style="color: #93a1a1">()</span>
+<span style="color: #93a1a1">{</span>
+      <span style="color: #586e75">InitializeComponent</span><span style="color: #93a1a1">();</span>
+      <span style="color: #586e75">DataContext</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">this</span><span style="color: #93a1a1">;</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<h4 id="defining-the-binding-path"><center>Defining the Binding Path</center></h4>
+
+<p><strong>All the data we are going to bind to the GUI must be the properties of this DataContext.</strong></p>
+
+<p>Now we are binding some data to a ListBox in MainWindow.xaml:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">&lt;ListBox</span> <span style="color: #268bd2">x:Name=</span><span style="color: #859900">"listBox"</span> <span style="color: #268bd2">ItemsSource=</span><span style="color: #859900">"{Binding Names}"</span><span style="color: #b58900">/&gt;</span>
+<span style="color: #b58900">&lt;ListBox</span> <span style="color: #268bd2">x:Name=</span><span style="color: #859900">"listBox"</span> <span style="color: #268bd2">ItemsSource=</span><span style="color: #859900">"{Binding Path=Names}"</span><span style="color: #b58900">/&gt;</span>
+</code></pre></div></div>
+
+<p>The two lines of xaml code above are the same, “Path” means the path of the data we are going to bind relative to DateContex, so we can understand it as binding the ItemsSource to DataContex.Names. <strong>“Names” is a property of the DataContex, in our case, it is <em>this</em>.</strong> <strong>Names</strong>, which means there must be a property “Names” existed in our MainWindow class:</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">public</span> <span style="color: #6c71c4">partial</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">MainWindow</span> <span style="color: #93a1a1">:</span> <span style="color: #586e75">Window</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">string</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">Names</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">MainWindow</span><span style="color: #93a1a1">()</span>
+    <span style="color: #93a1a1">{</span>
+      	  <span style="color: #586e75">Names</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">string</span><span style="color: #93a1a1">&gt;()</span> <span style="color: #93a1a1">{</span> <span style="color: #859900">"hehe"</span><span style="color: #93a1a1">,</span> <span style="color: #859900">"haha"</span> <span style="color: #93a1a1">};</span>
+    	  <span style="color: #586e75">InitializeComponent</span><span style="color: #93a1a1">();</span>
+      	  <span style="color: #586e75">DataContext</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">this</span><span style="color: #93a1a1">;</span>
+    <span style="color: #93a1a1">}</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>Because we are binding some data to a ListBox, this data(property) must be some kinds of Collection. In order to synchronize between data and ListBox, <strong>it must be ObservableCollection</strong>, what’s more, <strong>it must be a public property and has explicit “get” and “set”.</strong></p>
+
+<p>If it is not an ObservableCollection, the ListBox can not notice its changes.</p>
+
+<p>If it is not public, the ListBox cannot get access to it.</p>
+
+<p>Now the program should run correctly. Except defining the DataBinding in xaml, we can also achieve the same functionality dynamically in the code:</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">listBox1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">ItemsSource</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">Names</span><span style="color: #93a1a1">;</span>
+</code></pre></div></div>
+
+<p><strong>Attention, when the ItemsSource is defined, the ListBox’s traditional data model ListBox.Items can no longer be used. The Items is now null, so when you try to do Items.Add, Items.Remove etc.. you will get an exception.</strong></p>
+
+<p>The result of data binding is <strong>you can and only can work on the data</strong>, the GUI, in our case the ListBox, will synchronize by itself and we don’t need to care about it anymore.</p>
+
+<h4 id="bind-selecteditem"><center>Bind SelectedItem</center></h4>
+
+<p>If we want to bind the ListBox’s selected item to some data, it is also possible:</p>
+
+<p>The xaml way:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">&lt;ListBox</span> <span style="color: #268bd2">x:Name=</span><span style="color: #859900">"listBox"</span> <span style="color: #268bd2">ItemsSource=</span><span style="color: #859900">"{Binding Names}"</span> <span style="color: #268bd2">SelectedItem=</span><span style="color: #859900">"{Binding selectedName, Mode=TwoWay}"</span><span style="color: #b58900">/&gt;</span>
+</code></pre></div></div>
+
+<p>Of couse we have to add a property named “selectedName” in our DataContex(MainWindow):</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">public</span> <span style="color: #6c71c4">partial</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">MainWindow</span> <span style="color: #93a1a1">:</span> <span style="color: #586e75">Window</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">string</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">Names</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #cb4b16">string</span> <span style="color: #586e75">selectedName</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+  	<span style="color: #93a1a1">...</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>The C# way:</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #586e75">listBox1</span><span style="color: #93a1a1">.</span><span style="color: #586e75">SetBinding</span><span style="color: #93a1a1">(</span><span style="color: #586e75">ListBox</span><span style="color: #93a1a1">.</span><span style="color: #586e75">SelectedItemProperty</span><span style="color: #93a1a1">,</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">Binding</span><span style="color: #93a1a1">(</span><span style="color: #859900">"selectedName"</span><span style="color: #93a1a1">));</span>
+</code></pre></div></div>
+
+<h4 id="more-complicated-case-bind-object-list"><center>More complicated case: bind object list</center></h4>
+
+<p>Now we are binding a collection of string to a ListBox, what if we want to bind a collection of objects? Some tiny things have to be changed:</p>
+
+<p>Change the data to :</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">public</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">Person</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">Person</span><span style="color: #93a1a1">(</span><span style="color: #cb4b16">string</span> <span style="color: #586e75">n</span><span style="color: #93a1a1">,</span> <span style="color: #cb4b16">int</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">)</span>
+    <span style="color: #93a1a1">{</span>
+    	<span style="color: #586e75">Name</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">n</span><span style="color: #93a1a1">;</span>
+        <span style="color: #586e75">Age</span> <span style="color: #93a1a1">=</span> <span style="color: #586e75">a</span><span style="color: #93a1a1">;</span>
+    <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #cb4b16">string</span> <span style="color: #586e75">Name</span> <span style="color: #93a1a1">{</span><span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span><span style="color: #6c71c4">set</span><span style="color: #93a1a1">;}</span>    
+    <span style="color: #6c71c4">public</span> <span style="color: #cb4b16">int</span> <span style="color: #586e75">Age</span> <span style="color: #93a1a1">{</span><span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span><span style="color: #6c71c4">set</span><span style="color: #93a1a1">;}</span>    
+<span style="color: #93a1a1">}</span>
+<span style="color: #6c71c4">public</span> <span style="color: #6c71c4">partial</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">MainWindow</span> <span style="color: #93a1a1">:</span> <span style="color: #586e75">Window</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">Person</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">Persons</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #cb4b16">string</span> <span style="color: #586e75">selectedName</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">MainWindow</span><span style="color: #93a1a1">()</span>
+    <span style="color: #93a1a1">{</span>
+        <span style="color: #586e75">Persons</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #586e75">Person</span><span style="color: #93a1a1">&gt;();</span>
+        <span style="color: #586e75">Persons</span><span style="color: #93a1a1">.</span><span style="color: #586e75">Add</span><span style="color: #93a1a1">(</span><span style="color: #6c71c4">new</span> <span style="color: #586e75">Person</span><span style="color: #93a1a1">(</span><span style="color: #859900">"Lena"</span><span style="color: #93a1a1">,</span><span style="color: #859900">18</span><span style="color: #93a1a1">));</span>
+        <span style="color: #586e75">InitializeComponent</span><span style="color: #93a1a1">();</span>
+        <span style="color: #586e75">DataContext</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">this</span><span style="color: #93a1a1">;</span>
+    <span style="color: #93a1a1">}</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>So we can see that Person as a class of course can not be directly presented by ListBox, so we should set the ListBox’s DisplayItemPath in xaml:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">&lt;ListBox</span> <span style="color: #268bd2">x:Name=</span><span style="color: #859900">"listBox"</span> <span style="color: #268bd2">ItemsSource=</span><span style="color: #859900">"{Binding Persons}"</span> <span style="color: #268bd2">DisplayMemberPath=</span><span style="color: #859900">"Name"</span><span style="color: #b58900">/&gt;</span>
+</code></pre></div></div>
+
+<p>Which means we want to display DataContext.Persons[k].Name as the ListBox’s kth item. In this case, the kth item will display <strong><em>this.Persons[k].Name.</em></strong></p>
+
+<hr />
+
+<p>All code Combined</p>
+
+<p>C# Part:</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #6c71c4">public</span> <span style="color: #6c71c4">partial</span> <span style="color: #6c71c4">class</span> <span style="color: #b58900">MainWindow</span> <span style="color: #93a1a1">:</span> <span style="color: #586e75">Window</span>
+<span style="color: #93a1a1">{</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">string</span><span style="color: #93a1a1">&gt;</span> <span style="color: #586e75">Names</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #cb4b16">string</span> <span style="color: #586e75">selectedName</span> <span style="color: #93a1a1">{</span> <span style="color: #6c71c4">get</span><span style="color: #93a1a1">;</span> <span style="color: #6c71c4">set</span><span style="color: #93a1a1">;</span> <span style="color: #93a1a1">}</span>
+    <span style="color: #6c71c4">public</span> <span style="color: #586e75">MainWindow</span><span style="color: #93a1a1">()</span>
+    <span style="color: #93a1a1">{</span>
+        <span style="color: #586e75">Names</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">new</span> <span style="color: #586e75">ObservableCollection</span><span style="color: #93a1a1">&lt;</span><span style="color: #cb4b16">string</span><span style="color: #93a1a1">&gt;()</span> <span style="color: #93a1a1">{</span> <span style="color: #859900">"hehe"</span><span style="color: #93a1a1">,</span> <span style="color: #859900">"haha"</span> <span style="color: #93a1a1">};</span>
+        <span style="color: #586e75">InitializeComponent</span><span style="color: #93a1a1">();</span>
+        <span style="color: #586e75">DataContext</span> <span style="color: #93a1a1">=</span> <span style="color: #6c71c4">this</span><span style="color: #93a1a1">;</span>
+    <span style="color: #93a1a1">}</span>
+<span style="color: #93a1a1">}</span>
+</code></pre></div></div>
+
+<p>XAML Part:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span style="color: #b58900">&lt;Window</span> <span style="color: #268bd2">x:Class=</span><span style="color: #859900">"DataBinding.MainWindow"</span>
+        <span style="color: #268bd2">xmlns=</span><span style="color: #859900">"http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+        <span style="color: #268bd2">xmlns:x=</span><span style="color: #859900">"http://schemas.microsoft.com/winfx/2006/xaml"</span>
+        <span style="color: #268bd2">xmlns:d=</span><span style="color: #859900">"http://schemas.microsoft.com/expression/blend/2008"</span>
+        <span style="color: #268bd2">xmlns:mc=</span><span style="color: #859900">"http://schemas.openxmlformats.org/markup-compatibility/2006"</span>
+        <span style="color: #268bd2">xmlns:local=</span><span style="color: #859900">"clr-namespace:DataBinding"</span>
+        <span style="color: #268bd2">mc:Ignorable=</span><span style="color: #859900">"d"</span>
+        <span style="color: #268bd2">Title=</span><span style="color: #859900">"MainWindow"</span> <span style="color: #268bd2">Height=</span><span style="color: #859900">"350"</span> <span style="color: #268bd2">Width=</span><span style="color: #859900">"400.838"</span><span style="color: #b58900">&gt;</span>
+    <span style="color: #b58900">&lt;Grid</span> <span style="color: #268bd2">Margin=</span><span style="color: #859900">"0,0,4,-0.2"</span><span style="color: #b58900">&gt;</span>
+        <span style="color: #b58900">&lt;ListBox</span> <span style="color: #268bd2">x:Name=</span><span style="color: #859900">"listBox"</span> <span style="color: #268bd2">ItemsSource=</span><span style="color: #859900">"{Binding Names}"</span> <span style="color: #268bd2">SelectedItem=</span><span style="color: #859900">"{Binding selectedName, Mode=TwoWay}"</span><span style="color: #b58900">/&gt;</span>
+    <span style="color: #b58900">&lt;/Grid&gt;</span>
+<span style="color: #b58900">&lt;/Window&gt;</span>
+</code></pre></div></div>
+:ET

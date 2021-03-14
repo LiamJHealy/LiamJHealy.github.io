@@ -1,89 +1,113 @@
+# Config items
 title:            Liam Healy
-description:      Quantitative Analytics Articles
-
-# put your disqus here
-disqus_shortname:
-reading_time:     true # if true, shows the estimated reading time for a post
+description:      Analytics and programmig Articles
+reading_time:     true
 words_per_minute: 200
-logo:             images/logo.png # logo visible in the topbar
-excerpt_separator: <!--more-->
-# Your site's domain goes here (eg: //mmistakes.github.io, http://mademistakes.com, etc)
+logo:             images/logo.png
+
 # When testing locally leave blank or use http://localhost:4000
+url:
 
-url: //liamhealy1992.github.io/
-
-# draw your top menu here
-# each item must have a title and a url.
-#   To list post categories. use type: 'categories'
-#   To create sub categories. add a submenu item
-# See the example
+# Draw your top menu here
 menu:
-  - title: 'Articles'
+  - title: 'Main'
     url: '/'
-  - title: 'Tags'
-    url: '/tags'
-  - title: 'Categories'
-    url: '/categories'
+
+  - title: 'Research'
+    url: '/research'
+
+  - title: 'Programming'
+    url: '/programming'
+
+  - title: 'Resume'
+    url: '/contact'
 
 # Owner/author information
 owner:
   name:           Liam Healy
-  site:           //liamhealy1992.github.io/
-  avatar:         images/avatar.jpg
-  bio:            "Experienced Quantitative Model Developer within Retail and Treasury. Passionate about problem solving, mathematical modelling and optimisation. "
+  avatar:         images/logo.png
+  bio:            "Experienced Quantitative Model Developer within Retail Banking and Treasury. Passionate about about modelling, programming and optimisation!"
   email:          liamhealy1992@gmail.com
+  # Social networking links used in footer. Update and remove as you like.     
+  github:         liamhealy1992
+  linkedin:       https://www.linkedin.com/in/ljhealy1992/
+
+disqus_shortname:   Liam Healy
   
-  # Twitter nick for use in Twitter cards and follow button.
-  twitter: false # if no twitter in this config, the twitter follow button will be removed
-  # GitHub nick for use in follow button in author block.
-  github: liamhealy1992
-
-# Twitter account associated with the site if different from owner/author twitter account.
-# Used in Twitter cards.
-twitter: false
-
-# Social networking links used in author block underneath posts. Update and remove as you like.
-social:
-  - title: "github"
-    url: "https://github.com/liamhealy1992"
-  - title: "linkedin"
-    url: "https://www.linkedin.com/in/ljhealy1992/"
-
 # Background image to be tiled on all pages
-background:
+background: 
 
 # Analytics and webmaster tools stuff goes here
-google_analytics:
-google_verify:
+google_analytics:   UA-80848870-1
+google_verify:      
 # https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
-bing_verify:
+bing_verify:         
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 timezone:    Europe/London
-locale:      en_UK
 future:      true
 highlighter: rouge
 markdown:    kramdown
+gems:
+  - jekyll-sitemap
+  - jekyll-paginate
+  - jekyll-gist
+  - jekyll-feed
 sass:
   sass_dir: _sass
   style: compressed
 
-
+# https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink:   /:categories/:title/
+
+# Amount of post to show on home page
 paginate: 5
-float_share: false
 
-# Octopress
-# Default extensions
-post_ext: md
-page_ext: md
-# Found in _templates/
-post_layout: post
-page_layout: page
-# Format titles with titlecase?
-titlecase: true
+kramdown:
+  input: GFM
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  enable_coderay: false
 
-include: [".htaccess"]
-exclude: ["demo/*", "lib", "config.rb", "Capfile", "config", "Gemfile", "Gemfile.lock", "README.md", "LICENSE", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules"]
-gems: [jekyll-paginate]
-theme: neo-hpstr-jekyll-theme
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    line_numbers: true
+    start_line: 1
+    wrap: true
+    inline_theme: monokai.sublime
+    css_class: 'highlight'
+
+#base16, base16.dark, base16.monokai
+#base16.monokai.light, base16.solarized
+#base16.solarized.dark
+#colorful,github, gruvbox
+#gruvbox.light, molokai
+#monokai, monokai.sublime, thankful_eyes
+
+include: 
+  - .htaccess
+exclude: 
+  - "*.less"
+  - "*.sublime-project"
+  - "*.sublime-workspace"
+  - .asset-cache
+  - .bundle
+  - .jekyll-assets-cache
+  - .sass-cache
+  - CHANGELOG
+  - Capfile
+  - Gemfile
+  - Gruntfile.js
+  - LICENSE
+  - README
+  - Rakefile
+  - config
+  - gulpfile.js
+  - lib
+  - log
+  - node_modules
+  - package.json
+  - spec
+  - tmp
