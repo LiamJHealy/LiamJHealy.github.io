@@ -135,14 +135,14 @@ figure.center img{
   }
 }
 .btn-info {
-  background-color: $info;
-  color: $white;
+  background-color: $white;
+  color: $info;
   border-color: $info;
   &:visited {
-    color: $white;
+    color: $info;
   }
   &:hover {
-    background-color: $white;
+    background-color: $gray;
     color: $info;
   }
 }

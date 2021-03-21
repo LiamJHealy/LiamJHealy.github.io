@@ -1,13 +1,27 @@
 ---
 layout: post
-title: Python - List Comprehension
+title: Python List Comprehension
 description: "Python Programming"
 tags: []
 categories: [Programming]
 
 ---
 
-This post covers an example of list comprehension in Python to solve the <code>First Unique Character in a String</code> problem.
+List comprehension is a neat was to constuct a list in python within one line of code. The code below shows the general syntax for appending items using a loop.
+
+{% highlight python %}
+for item in iterable:
+  if condition == True:
+    newlist.append(x)
+{% endhighlight %}
+
+By using list comprehension, this code can be reduced to:
+
+{% highlight python %}
+newlist = [expression for item in iterable if condition == True]
+{% endhighlight %}
+
+<!-- more -->
 
 A solution to this problem using list comprehension is the funtion <code>firstUniqChar(s)</code> shown below:
 
