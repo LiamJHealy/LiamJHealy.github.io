@@ -17,7 +17,7 @@ Consider a distribution $$X$$ which we can simulate $$n$$ random variates {$$x_1
 
 The charts below show an example of a PDF and CDF for an i.i.d  distribution which is $$\text{Normal}(0,1)$$ with a sample size of $$50$$:
 
-![sample_distribution]({{ site.url }}/images/Research/sample_distribution.png)
+![sample_distribution]({{ site.url }}/images/research/sample_distribution.png)
 
 ## Joint Distribution
 
@@ -72,7 +72,7 @@ $$
 
 By simulating $$1,000$$ times we can construct a emperical joint distribution as shown below:
 
-![independent_joint_distribution]({{ site.url }}/images/Research/independent_joint_distribution.png)
+![independent_joint_distribution]({{ site.url }}/images/research/independent_joint_distribution.png)
 
 ### b) Dependent Margin Distributions
 
@@ -121,7 +121,7 @@ This equation tells us that the updated standard deviation of $$y_1$$, given tha
 Lets consider the example where $$X$$ and $$Y$$ are dependent Standard Normal distribution with a pearson correlation of $$\rho_{XY} = 0.8$$ (i.e. they are 80% linearly correlation). Lets also assume that we randomly sample $$x_1=2$$ from $$X \sim N(0,1)$$. 
 
 {:.center}
-![gaussian_example]({{ site.url }}/images/research/gaussian_example.png#center)
+![gaussian_example]({{ site.url }}/images/research/gaussian_example.png)
 
 
 ## Simulating Gaussian Copula
@@ -136,7 +136,7 @@ The process to calculate $$X$$ and $$Y$$ is as follows:
 The first step is to simply simulate $$Z_X$$ and $$Z_Y$$ from two Standard Normal Distributions independently. The charts below show that the CDFs for each distribution are similar and that there is no dependence structure due to the symetric nature of the variance.
 
 {:.center}
-![gaussian_z]({{ site.url }}/images/research/gaussian_z.png#center)
+![gaussian_z]({{ site.url }}/images/research/gaussian_z.png)
 
 **Step 2: Cholesky Decomposition and Determine $$X$$ and $$Y$$**
 
@@ -193,4 +193,4 @@ $$
 the results below show that the marginal distributions of $$X$$ and $$Y$$ look the same as $$Z_X$$ and $$Z_Y$$, however the joint distribution is clearly shows the dependence structure. This demonstrates an example as to why we do not nessassarily know the join distribution given the marginal distributions. The Copula is also needed to understand the joint distribution.
 
 {:.center}
-![gaussian_chol]({{ site.url }}/images/research/gaussian_chol.png#center)
+![gaussian_chol]({{ site.url }}/images/research/gaussian_chol.png)
