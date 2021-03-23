@@ -32,7 +32,7 @@ owner:
   github:         liamhealy1992
   linkedin:       https://www.linkedin.com/in/ljhealy1992/
 
-disqus_shortname:   Liam Healy
+# disqus_shortname:   Liam Healy
   
 # Background image to be tiled on all pages
 background: 
@@ -48,7 +48,7 @@ timezone:    Europe/London
 future:      true
 highlighter: rouge
 markdown:    kramdown
-gems:
+plugins:
   - jekyll-sitemap
   - jekyll-paginate
   - jekyll-gist

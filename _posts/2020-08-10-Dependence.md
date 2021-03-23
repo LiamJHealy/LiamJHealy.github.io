@@ -46,7 +46,7 @@ $$
 By substituting $$E(XY) = E(X)E(Y)$$ into the equation for $$\rho_{X,Y}$$ we find that the numerator is zero. Therefore, by definition, if $$X$$ and $$Y$$ are independent then they also have zero Pearson's correlation.
 
 $$
-\boxed{\text{Independence} \Rightarrow \text{No Correlation}}
+\text{Independence} \Rightarrow \text{No Correlation}
 $$
 
 ## Example with Zero Correlation
@@ -96,7 +96,7 @@ $$
 since $$E(Z) = 0$$. This demonstrates an example where both $$X$$ and $$Y$$ are $$N(0,1)$$ with correlation coefficient $$\rho = 0$$. Therefore this proves thats hacing a correlation of zero does not mean that the distributions are independent
 
 $$
-\boxed{\text{No Correlation}  \nRightarrow \text{Independence}}
+\text{No Correlation}  \nRightarrow \text{Independence}
 $$
 
 ## Summary
