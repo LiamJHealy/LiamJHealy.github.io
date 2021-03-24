@@ -7,7 +7,13 @@ categories: [Research]
 comments: false
 ---
 
-This article derives the delta $$\Delta$$ of a European option on a non-dividend paying stock and discusses the implementation in Python.
+The delta of an option describes how the price of the option $$V$$ changes with respect to changes in the underlying asset $$S$$. 
+
+$$
+\Delta = \frac{\partial V}{\partial S}
+$$
+
+This article explains how the delta for a European option which does not pay dividends can be derived by evaluating the partial derivative of the of the value with respect to the underlying price. The same methodology can be used to derive the other option greeks, however this article is only intended to provide an example derivation for the delta.
 
 <!-- more -->
 
@@ -40,7 +46,7 @@ $$
 - $$r$$ - is the risk free interest rate
 - $$\sigma$$ - is the volatility of the underlying asset returns
 
-The delta  is defined as the change in value of the option $$V$$ with respect to the price of the underlying asset $$S$$.
+The delta  is defined as the change in value of the European call option $$C$$ with respect to the price of the underlying asset $$S$$.
 
 $$
 \Delta_c = \frac{\partial C_t}{\partial S_t} = \frac{\partial [S_t N(d_1)]}{\partial S_t} - Xe^{-r(T-t)} \frac{\partial N(d_2)}{\partial S_t} \label{eq5}\tag{5}
@@ -118,11 +124,51 @@ def call_delta(S, v, X, T, r):
 
 ## Delta of a European Put: $$\Delta_p$$
 
-The price of a European Put option, based on put-call parity is shown below:
+The price of a European Put option can be derived through put-call parity under the assumption that there is no arbitrage
 
 $$
-\begin{align}
-P(S_t,t) &= Xe^{-rT} - S_t + C(S_t,t) \\
-&= Xe^{-rT}N(-d_2) - S_tN(-d_1)
-\end{align}
+C(S_t,t) - P(S_t,t) = S_t - Xe^{-r(T-t)} \label{eq12}\tag{12}
 $$
+
+By rearranging and substituting the price of the European call, we can write the price of a put option as
+
+$$
+P(S_t,t) = Xe^{-r(T-t)}N(-d_2) - S_tN(-d_1) \label{eq13}\tag{13}
+$$
+
+The delta of a European put option can be derived in a similar fashion to the call option
+
+$$
+\Delta_p = \frac{\partial P_t}{\partial S_t} = Xe^{-r(T-t)}\frac{\partial N(-d_2)}{\partial S_t} - \frac{\partial [S_tN(-d_1)]}{\partial S_t} \label{eq14}\tag{14}
+$$
+
+By evaluating (\ref{eq14}), much like we did for (\ref{eq5}), we arrive at the delta of a European put
+
+$$
+\Delta_p = N(d_1) - 1 \label{eq15}\tag{15}
+$$
+
+The Python code to calculate the delta for a European put option on a non-dividend paying stock would be
+
+{% highlight python %}
+from scipy.stats import norm
+from math import log, sqrt
+
+def put_delta(S, v, X, T, r):
+    '''
+    S: Stock Price
+    v: Volatility
+    X: Strike Price
+    T: Time to maturity
+    r: Risk free interest rate
+    '''
+
+    d1 = (log(S / X) + (r + 0.5 * v**2) * T) / (v * sqrt(T))
+    return norm.cdf(d1) - 1
+{% endhighlight %}
+{:.center}
+*European Put Option Delta*
+
+## Summary
+
+This article demonstrated how we can derive the delta of a European call and put option from their respective price equation. 

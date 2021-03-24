@@ -47,7 +47,7 @@ Within the Black-Scholes model, there are four parameters which can be determine
 The four variables in the Black-Scholes model are as follows. The value of the derivative (call/put) is represented by $$V$$.
 
 - Delta - $$\Delta$$ - First partial derivative of the option value w.r.t the asset price $$\frac{\partial V}{\partial S}$$
-- Theta - $$\theta$$ - First partial derivative of the option value w.r.t time $$\frac{\partial V}{\partial \tau}$$
+- Theta - $$\theta$$ - First partial derivative of the option value w.r.t time $$-\frac{\partial V}{\partial \tau}$$
 - Vega - $$\nu$$ - First partial derivative of the option value w.r.t the asset volatility $$\frac{\partial V}{\partial \sigma}$$
 - Rho - $$\rho$$ - First partial derivative of the option value w.r.t the interest rate $$\frac{\partial V}{\partial r}$$
 
