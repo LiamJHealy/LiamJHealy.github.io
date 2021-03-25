@@ -16,6 +16,15 @@
 .center {
 	text-align: center;
   }
+
+  .border {
+	margin-bottom: 1.5em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	border: 1px solid #e8e8e8;
+	background-color: lighten(#e8e8e8, 5%);
+	@include rounded(3px);
+  }
   
 .no-italics {
     font-style: normal;   

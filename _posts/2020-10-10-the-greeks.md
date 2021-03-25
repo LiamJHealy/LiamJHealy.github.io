@@ -7,13 +7,13 @@ categories: [Research]
 comments: false
 ---
 
-The option greeks are used describe the different dimensions of risk involved in taking an options position in the market. These dimensions are referred to option greeks because they are represented by greek symbols. In plain english, the greeks describe how the option price changes when each of the parameters are changed (holding all others constant).
+The option greeks are used describe the different dimensions of risk involved in taking an options position in the market. These dimensions are referred to as the option greeks because they are represented by greek symbols. In plain english, the greeks describe how the option price changes when each of the parameters are changed (holding all others constant).
 
 $$
 \Delta = \frac{\partial V}{\partial S}, \hspace{0.5cm} \theta = \frac{\partial V}{\partial \tau}, \hspace{0.5cm} \nu = \frac{\partial V}{\partial \sigma}, \hspace{0.5cm} \rho = \frac{\partial V}{\partial r}
 $$
 
-The purpose of this article is explore the first order greeks for a European call and put option where the underlying does not pay dividends. The derivation of the greeks will not be covered in this article, instead, it will just focus on the results and an implementation framework in Python.
+The purpose of this article is explore the first order greeks for a European call and put option where the underlying does not pay dividends. This article also demonstrates a simple implementation framework using Python.
 
 <!-- more -->
 
@@ -53,7 +53,7 @@ The four variables in the Black-Scholes model are as follows. The value of the d
 
 ## European Option Greeks
 
-The value of a European call options can be derived from the Black-Scholes equation given its boundary conditions. The value of a call option is shown below.
+The value of a European call options can be derived from the Black-Scholes equation given a set of boundary conditions for the European option. The value of a call option is shown below.
 
 $$
 C_t(S_t,t) = S_t N(d_1) - Xe^{-r(T-t)}N(d_2)
@@ -70,10 +70,10 @@ $$d_{1,2} = \frac{ \ln{ \left(\frac{S_t}{X}\right) } + \left( r \pm \frac{\sigma
 - $$r$$ - is the risk free interest rate
 - $$\sigma$$ - is the volatility of the underlying asset returns
 
-Additionally, the value of the European put option is
+The value of the European put option can be derived using put-call parity as
 
 $$
-P(S_t,t) = Xe^{-rT}N(-d_2) - S_tN(-d_1)
+P_t(S_t,t) = Xe^{-rT}N(-d_2) - S_tN(-d_1)
 $$
 
 The closed form solutions for the first order greeks for the European call and put options are summarised in the table bellow

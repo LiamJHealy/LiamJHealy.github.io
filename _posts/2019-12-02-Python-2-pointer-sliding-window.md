@@ -9,7 +9,8 @@ categories: [Programming]
 
 One of the most common approaches to solve many algoritm problems is to apply some type of 2-Pointer approach. The 2-Pointer approach is used to search over a list (or multiple list) in such a way that the time complexity can be minimised. Consider the following problem:
 
-> Given an array of positive integers <code>nums</code> and a positive integer <code>target</code>, return the minimal length of a contiguous subarray <code>[numsl, numsl+1, ..., numsr-1, numsr]</code> of which the sum is greater than or equal to <code>target</code>. If there is no such subarray, <code>return 0</code> instead.
+<p class="border"><b>Problem Statement:</b> Given an array of positive integers and a positive target integer, return the minimal length of a contiguous sub-array of which the sum is greater than or equal to the target.</p>
+
 
 This article visually explains how we can use a two-pointer algorithm with a sliding window to solve this problem with $$O(n)$$ time complexity.
 
