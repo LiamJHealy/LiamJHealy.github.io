@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Geometric Brownian Motion
+title: Simulating Stock Price with Geometric Brownian Motion
 description: "Research"
 tags: []
 categories: [Research]
