@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Depth-First Search Algorithm
-description: "Python Programming"
+description: "Programming"
 tags: []
 categories: [Programming]
 ---

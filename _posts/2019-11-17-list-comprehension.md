@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Python List Comprehension
+title: List Comprehension
 description: "Python Programming"
 tags: []
 categories: [Programming]

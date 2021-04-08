@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Breadth-First Search Algorithm
-description: "Python Programming"
+description: "Programming"
 tags: []
 categories: [Programming]
 
