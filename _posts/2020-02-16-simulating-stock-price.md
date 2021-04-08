@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Simulating Stock Price with Geometric Brownian Motion
+title: Simulating Stock Price
 description: "Research"
 tags: []
 categories: [Research]
@@ -13,12 +13,11 @@ The movement of stock prices are generally considered to be a random walk which 
 - There is a drift and diffusion component which can be calibrated to historical rates;
 - Closed-form solutions exist which makes simulating forward paths computationally efficient.
 
+The equation for Geometric Brownian Motion is
+
 $$
 dS_t = \mu S_t dt + \sigma S_t dW_t
 $$
-
-{:.center}
-*Geometric Brownian Motion SDE*
 
 where $$S$$ is the stock price, $$\mu$$ is the drift coefficient, $$\sigma$$ is the diffusion coefficient, and $$W_t$$ is the Brownian Motion.
 
